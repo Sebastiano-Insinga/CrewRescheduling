@@ -1,0 +1,3 @@
+1	{'task_type': 'regular', 'locomotive': 22551, 'train_section': 22694, 'section': 22288, 'departure_time': 1536598560, 'arrival_time': 1536607440}
+2	{'task_type': 'regular', 'locomotive': 22551, 'train_section': 22696, 'section': 22323, 'departure_time': 1536608940, 'arrival_time': 1536612180}
+3	{'task_type': 'regular', 'locomotive': 22553, 'train_section': 22802, 'section': 22378, 'departure_time': 1536602700, 'arrival_time': 1536606360}

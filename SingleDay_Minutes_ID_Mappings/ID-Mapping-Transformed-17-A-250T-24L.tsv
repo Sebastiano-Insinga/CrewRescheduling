@@ -1,0 +1,27 @@
+1	{'task_type': 'regular', 'locomotive': 22560, 'train_section': 22727, 'section': 22500, 'departure_time': 1536601080, 'arrival_time': 1536604200}
+2	{'task_type': 'regular', 'locomotive': 22562, 'train_section': 22582, 'section': 22242, 'departure_time': 1536600240, 'arrival_time': 1536603420}
+3	{'task_type': 'regular', 'locomotive': 22563, 'train_section': 22822, 'section': 22407, 'departure_time': 1536603480, 'arrival_time': 1536610140}
+4	{'task_type': 'regular', 'locomotive': 22563, 'train_section': 22824, 'section': 22334, 'departure_time': 1536610620, 'arrival_time': 1536613800}
+5	{'task_type': 'regular', 'locomotive': 22564, 'train_section': 23049, 'section': 22472, 'departure_time': 1536599580, 'arrival_time': 1536604740}
+6	{'task_type': 'regular', 'locomotive': 22565, 'train_section': 23396, 'section': 22288, 'departure_time': 1536598560, 'arrival_time': 1536607440}
+7	{'task_type': 'regular', 'locomotive': 22565, 'train_section': 23398, 'section': 22323, 'departure_time': 1536608940, 'arrival_time': 1536612180}
+8	{'task_type': 'regular', 'locomotive': 22567, 'train_section': 22919, 'section': 22441, 'departure_time': 1536573240, 'arrival_time': 1536577200}
+9	{'task_type': 'deadhead', 'locomotive': 22567, 'first_train_section': 22919, 'first_section': 22441, 'first_departure_time': 1536573240, 'first_arrival_time': 1536577200, 'second_train_section': 22633, 'second_section': 22475, 'second_departure_time': 1536589860, 'second_arrival_time': 1536593880}
+10	{'task_type': 'regular', 'locomotive': 22567, 'train_section': 22633, 'section': 22475, 'departure_time': 1536589860, 'arrival_time': 1536593880}
+11	{'task_type': 'deadhead', 'locomotive': 22568, 'first_train_section': 23188, 'first_section': 22417, 'first_departure_time': 1536561360, 'first_arrival_time': 1536576840, 'second_train_section': 22943, 'second_section': 22378, 'second_departure_time': 1536599100, 'second_arrival_time': 1536602760}
+12	{'task_type': 'regular', 'locomotive': 22568, 'train_section': 22943, 'section': 22378, 'departure_time': 1536599100, 'arrival_time': 1536602760}
+13	{'task_type': 'regular', 'locomotive': 22568, 'train_section': 22600, 'section': 22416, 'departure_time': 1536605640, 'arrival_time': 1536609300}
+14	{'task_type': 'regular', 'locomotive': 22570, 'train_section': 23408, 'section': 22492, 'departure_time': 1536560640, 'arrival_time': 1536569880}
+15	{'task_type': 'deadhead', 'locomotive': 22550, 'first_train_section': 22961, 'first_section': 22464, 'first_departure_time': 1536530400, 'first_arrival_time': 1536552780, 'second_train_section': 23014, 'second_section': 22486, 'second_departure_time': 1536580320, 'second_arrival_time': 1536583920}
+16	{'task_type': 'regular', 'locomotive': 22550, 'train_section': 23014, 'section': 22486, 'departure_time': 1536580320, 'arrival_time': 1536583920}
+17	{'task_type': 'regular', 'locomotive': 22550, 'train_section': 23016, 'section': 22341, 'departure_time': 1536584220, 'arrival_time': 1536588120}
+18	{'task_type': 'regular', 'locomotive': 22550, 'train_section': 23018, 'section': 22264, 'departure_time': 1536589740, 'arrival_time': 1536590160}
+19	{'task_type': 'regular', 'locomotive': 22553, 'train_section': 23232, 'section': 22378, 'departure_time': 1536602700, 'arrival_time': 1536606360}
+20	{'task_type': 'regular', 'locomotive': 22555, 'train_section': 23200, 'section': 22299, 'departure_time': 1536551460, 'arrival_time': 1536555240}
+21	{'task_type': 'deadhead', 'locomotive': 22555, 'first_train_section': 23200, 'first_section': 22299, 'first_departure_time': 1536551460, 'first_arrival_time': 1536555240, 'second_train_section': 22850, 'second_section': 22294, 'second_departure_time': 1536610080, 'second_arrival_time': 1536613320}
+22	{'task_type': 'regular', 'locomotive': 22555, 'train_section': 22850, 'section': 22294, 'departure_time': 1536610080, 'arrival_time': 1536613320}
+23	{'task_type': 'regular', 'locomotive': 22556, 'train_section': 22662, 'section': 22256, 'departure_time': 1536554520, 'arrival_time': 1536557460}
+24	{'task_type': 'deadhead', 'locomotive': 22556, 'first_train_section': 22662, 'first_section': 22256, 'first_departure_time': 1536554520, 'first_arrival_time': 1536557460, 'second_train_section': 22976, 'second_section': 22387, 'second_departure_time': 1536562320, 'second_arrival_time': 1536564120}
+25	{'task_type': 'regular', 'locomotive': 22556, 'train_section': 22976, 'section': 22387, 'departure_time': 1536562320, 'arrival_time': 1536564120}
+26	{'task_type': 'regular', 'locomotive': 22556, 'train_section': 23194, 'section': 22331, 'departure_time': 1536599280, 'arrival_time': 1536610200}
+27	{'task_type': 'regular', 'locomotive': 22558, 'train_section': 23037, 'section': 22338, 'departure_time': 1536563100, 'arrival_time': 1536575040}
