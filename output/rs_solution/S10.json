@@ -1,0 +1,3638 @@
+[
+  {
+    "id_trip": 24702,
+    "locomotive": 22562,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23368,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23370,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23176,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24090,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24410,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23073,
+    "locomotive": 22583,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22840,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22728,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23853,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23642,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23889,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22707,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24480,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23210,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23769,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "true"
+  },
+  {
+    "id_trip": 23891,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22717,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23944,
+    "locomotive": 22576,
+    "maintenance_at_departure": "true",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24121,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23753,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24084,
+    "locomotive": 22566,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23893,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24259,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24513,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23515,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24477,
+    "locomotive": 22579,
+    "maintenance_at_departure": "true",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22720,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23452,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23461,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22943,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22747,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23855,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23545,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23239,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24541,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23547,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24328,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22722,
+    "locomotive": 22566,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24059,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22975,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23620,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23549,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23431,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23778,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22949,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24744,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23029,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23741,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24416,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23986,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24726,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23479,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23106,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24452,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24380,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24746,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24418,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22907,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23722,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23871,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24748,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24175,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23506,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23743,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24177,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24420,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23391,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23270,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23559,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23880,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22966,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24728,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23725,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23393,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23395,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24730,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23194,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23397,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24732,
+    "locomotive": 22587,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22631,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23399,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23196,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23989,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23142,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24582,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22676,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24029,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23301,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22633,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23032,
+    "locomotive": 22577,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23198,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23991,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22725,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23035,
+    "locomotive": 22550,
+    "maintenance_at_departure": "true",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23500,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23993,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23313,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22678,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22990,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23509,
+    "locomotive": 22585,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24172,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23996,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23784,
+    "locomotive": 22566,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24629,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23385,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24022,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24314,
+    "locomotive": "canceled",
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23582,
+    "locomotive": 22577,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24455,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23245,
+    "locomotive": 22581,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23188,
+    "locomotive": 22566,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "true"
+  },
+  {
+    "id_trip": 23998,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23584,
+    "locomotive": 22577,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22984,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23790,
+    "locomotive": 22583,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24316,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23685,
+    "locomotive": 22562,
+    "maintenance_at_departure": "true",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22611,
+    "locomotive": 22587,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24025,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24318,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "true"
+  },
+  {
+    "id_trip": 23586,
+    "locomotive": 22577,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24340,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22613,
+    "locomotive": 22587,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24426,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22892,
+    "locomotive": 22558,
+    "maintenance_at_departure": "true",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23310,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22615,
+    "locomotive": 22587,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23518,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23207,
+    "locomotive": 22560,
+    "maintenance_at_departure": "true",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24449,
+    "locomotive": 22564,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22617,
+    "locomotive": 22587,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24489,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24287,
+    "locomotive": 22583,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24446,
+    "locomotive": 22564,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23896,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23061,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22698,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23709,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22619,
+    "locomotive": 22587,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24687,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23921,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23520,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23539,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24544,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22756,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22969,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23883,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24337,
+    "locomotive": 22566,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24546,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24103,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23738,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24133,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22647,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23637,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24423,
+    "locomotive": 22562,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24548,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23711,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23097,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23044,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23688,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23639,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24708,
+    "locomotive": 22583,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23964,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23328,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23694,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23713,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24617,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23958,
+    "locomotive": 22585,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24664,
+    "locomotive": 22581,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22649,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24666,
+    "locomotive": 22581,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24402,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23434,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23934,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22692,
+    "locomotive": 22568,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23087,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23067,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24668,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23858,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23936,
+    "locomotive": 22562,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23927,
+    "locomotive": 22587,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22651,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22858,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23512,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22759,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23938,
+    "locomotive": 22562,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24249,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23860,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22653,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22998,
+    "locomotive": 22566,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23145,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23148,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23016,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23436,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22940,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24492,
+    "locomotive": 22583,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23929,
+    "locomotive": 22587,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23862,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23109,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24252,
+    "locomotive": 22581,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23931,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24375,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23967,
+    "locomotive": 22554,
+    "maintenance_at_departure": "true",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23438,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24377,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22744,
+    "locomotive": 22585,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24187,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23700,
+    "locomotive": 22577,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24498,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24255,
+    "locomotive": 22581,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24519,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23440,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23316,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24521,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24557,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23405,
+    "locomotive": 22566,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22924,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22704,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24523,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22904,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24559,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24561,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24605,
+    "locomotive": 22587,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24238,
+    "locomotive": 22585,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24399,
+    "locomotive": 22568,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24647,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23628,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23334,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24483,
+    "locomotive": 22562,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24464,
+    "locomotive": 22566,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22955,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22600,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24154,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24308,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24115,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24467,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24013,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23716,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22958,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23464,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23336,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23173,
+    "locomotive": 22564,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24437,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24078,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23365,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22639,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22961,
+    "locomotive": 22556,
+    "maintenance_at_departure": "true",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24056,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24429,
+    "locomotive": 22564,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23732,
+    "locomotive": 22585,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24510,
+    "locomotive": 22583,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22641,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22608,
+    "locomotive": 22566,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23120,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23216,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23342,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22643,
+    "locomotive": 22566,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23047,
+    "locomotive": 22585,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24305,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24431,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23671,
+    "locomotive": 22587,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23414,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22981,
+    "locomotive": 22562,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22963,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24044,
+    "locomotive": 22582,
+    "maintenance_at_departure": "true",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24284,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22843,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23565,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24112,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23304,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23402,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24290,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23552,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23160,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24693,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24019,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23252,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24711,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23772,
+    "locomotive": 22568,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23357,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23799,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22597,
+    "locomotive": 22583,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24053,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22603,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23824,
+    "locomotive": 22581,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22636,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22952,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23555,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22695,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22605,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23373,
+    "locomotive": 22568,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24529,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22800,
+    "locomotive": 22564,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23360,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24118,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24296,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24501,
+    "locomotive": 22577,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23826,
+    "locomotive": 22581,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24071,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23458,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23828,
+    "locomotive": 22581,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23801,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23793,
+    "locomotive": 22566,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23648,
+    "locomotive": 22564,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24073,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23362,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23756,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24075,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24062,
+    "locomotive": 22577,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24087,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22734,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24207,
+    "locomotive": 22583,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23658,
+    "locomotive": 22568,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23803,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23064,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23024,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23283,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24065,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24637,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23924,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24661,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24383,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23610,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22736,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23805,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23411,
+    "locomotive": 22583,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23973,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24032,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24321,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23201,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24001,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23660,
+    "locomotive": 22568,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22987,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24639,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22738,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23379,
+    "locomotive": 22577,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23613,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23662,
+    "locomotive": 22568,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24324,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23467,
+    "locomotive": 22581,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24641,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22794,
+    "locomotive": 22583,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24351,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24372,
+    "locomotive": 22566,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23616,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24671,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24197,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23242,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24673,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24392,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23469,
+    "locomotive": 22581,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24675,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24199,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23775,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22622,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24394,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24644,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23471,
+    "locomotive": 22581,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23762,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24589,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24396,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24201,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24343,
+    "locomotive": 22568,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23151,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23473,
+    "locomotive": 22581,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23811,
+    "locomotive": 22562,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23787,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24311,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24714,
+    "locomotive": 22587,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23764,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22978,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23623,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24592,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24302,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24093,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24620,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23796,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24678,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23179,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23228,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24035,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23766,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23562,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23886,
+    "locomotive": 22564,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24595,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23153,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23625,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23001,
+    "locomotive": 22581,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24551,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23070,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24299,
+    "locomotive": 22585,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23697,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22670,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24735,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23090,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24068,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24598,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23155,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23529,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23376,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23668,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23729,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23907,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24037,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23651,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23157,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23446,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23092,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23428,
+    "locomotive": 22562,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23094,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24039,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22901,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24357,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24041,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23602,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24127,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24005,
+    "locomotive": 22564,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23273,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24100,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23076,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22825,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24486,
+    "locomotive": 22587,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23325,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22831,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22797,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24699,
+    "locomotive": 22568,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24007,
+    "locomotive": 22564,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22883,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23163,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23604,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24690,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24331,
+    "locomotive": 22587,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24623,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23674,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24157,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24632,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23348,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24366,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24705,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24334,
+    "locomotive": 22562,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24634,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22769,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24626,
+    "locomotive": 22583,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22625,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23677,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24354,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23902,
+    "locomotive": 22566,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23007,
+    "locomotive": 22577,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23267,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23679,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24681,
+    "locomotive": 22585,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24190,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23503,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23010,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22701,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23038,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24720,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23276,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23781,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24369,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24684,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22656,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23904,
+    "locomotive": 22566,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23307,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24192,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24139,
+    "locomotive": 22587,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23278,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22658,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24194,
+    "locomotive": 22576,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23263,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22772,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24262,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24650,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22837,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23280,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22660,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23568,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23487,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24264,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23489,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23004,
+    "locomotive": 22583,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24652,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22662,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23219,
+    "locomotive": 22564,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23417,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24516,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23570,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24654,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23665,
+    "locomotive": 22562,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23419,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22864,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22664,
+    "locomotive": 22570,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23572,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24656,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23421,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23865,
+    "locomotive": 22587,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22853,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23221,
+    "locomotive": 22564,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22855,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23423,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23103,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23735,
+    "locomotive": 22583,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24532,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22867,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22846,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24658,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23223,
+    "locomotive": 22564,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23425,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22870,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23526,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23225,
+    "locomotive": 22564,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22775,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24554,
+    "locomotive": 22583,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22848,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23482,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23484,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22850,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24163,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23682,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23533,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23408,
+    "locomotive": 22554,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22731,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24081,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23231,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22778,
+    "locomotive": 22564,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23079,
+    "locomotive": 22585,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23204,
+    "locomotive": 22568,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23382,
+    "locomotive": 22589,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24016,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23234,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24165,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23596,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22780,
+    "locomotive": 22564,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23055,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24142,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23719,
+    "locomotive": 22567,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22782,
+    "locomotive": 22564,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22803,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24386,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23236,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23970,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24167,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23084,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23497,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24144,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24169,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22895,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23631,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23081,
+    "locomotive": 22568,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23607,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23899,
+    "locomotive": 22562,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24216,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24146,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24440,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23492,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23133,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24470,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24148,
+    "locomotive": 22560,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23494,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24047,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23135,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24267,
+    "locomotive": 22566,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23137,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24473,
+    "locomotive": 22582,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24130,
+    "locomotive": 22585,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23117,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23139,
+    "locomotive": 22558,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24269,
+    "locomotive": 22568,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22834,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24504,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24124,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24495,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22750,
+    "locomotive": 22568,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24741,
+    "locomotive": 22592,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23058,
+    "locomotive": 22568,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24363,
+    "locomotive": 22581,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24538,
+    "locomotive": 22566,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24010,
+    "locomotive": 22555,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22886,
+    "locomotive": 22562,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24405,
+    "locomotive": 22583,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24407,
+    "locomotive": 22583,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23910,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23961,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23112,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23249,
+    "locomotive": 22585,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23345,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23654,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23114,
+    "locomotive": 22569,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23354,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23691,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23126,
+    "locomotive": 22550,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23255,
+    "locomotive": 22577,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24210,
+    "locomotive": 22557,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24458,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23257,
+    "locomotive": 22577,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23868,
+    "locomotive": 22568,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23947,
+    "locomotive": 22556,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24723,
+    "locomotive": 22579,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24507,
+    "locomotive": 22572,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23831,
+    "locomotive": 22565,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22753,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 22889,
+    "locomotive": 22577,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23213,
+    "locomotive": 22561,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 23319,
+    "locomotive": 22587,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  },
+  {
+    "id_trip": 24293,
+    "locomotive": 22563,
+    "maintenance_at_departure": "false",
+    "maintenance_at_destination": "false"
+  }
+]

@@ -1,0 +1,57 @@
+{
+   "railway_network": "mini-network.json",
+   "trains": [
+      { "id": 1, "name": "Train1" },
+      { "id": 2, "name": "Train2" }
+   ],
+   "train_sections": [
+      {
+         "id": 10,
+         "train": 1,
+         "section": 1,
+         "departure_time": 0,
+         "arrival_time": 3600,
+         "locomotive_orders": [1]
+      },
+      {
+         "id": 11,
+         "train": 1,
+         "section": 2,
+         "departure_time": 3600,
+         "arrival_time": 7200,
+         "locomotive_orders": [1]
+      },
+      {
+         "id": 20,
+         "train": 2,
+         "section": 3,
+         "departure_time": 0,
+         "arrival_time": 3600,
+         "locomotive_orders": [1]
+      },
+      {
+         "id": 21,
+         "train": 2,
+         "section": 6,
+         "departure_time": 4200,
+         "arrival_time": 7800,
+         "locomotive_orders": [1]
+      }
+   ],
+   "locomotives": [
+      {
+         "id": 100,
+         "name": "Loco1",
+         "class": 1,
+         "kilometers_since_last_maintenance": 0,
+         "initial_departure_station": 1
+      },
+      {
+         "id": 101,
+         "name": "Loco2",
+         "class": 1,
+         "kilometers_since_last_maintenance": 0,
+         "initial_departure_station": 3
+      }
+   ]
+}

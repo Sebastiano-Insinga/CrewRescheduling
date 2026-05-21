@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../Downloads/validation20"
+		},
+		{
+			"path": "../Downloads/json"
+		},
+		{
+			"path": "../Downloads/single_type"
+		}
+	],
+	"settings": {}
+}

@@ -1,0 +1,5 @@
+instance_id,rs_method,crew_method,rs_trips_total,rs_covered,rs_canceled,id_mapping_entries,crew_duties,crew_uncovered,vns_method,vns_uncovered,vns_deadheading,vns_breaks_violated,vns_time_sec
+S01,randomized_greedy,calculateInitialSolution,65,61,4,90,33,41,model,42,5781469,0,0.32
+S01,scored_greedy,calculateInitialSolution,65,58,7,90,31,37,model,48,5791728,3,0.35
+S02,randomized_greedy,calculateInitialSolution,122,116,6,160,66,117,model,119,10266037,3,0.56
+S02,scored_greedy,calculateInitialSolution,122,119,3,160,66,112,model,116,16054412,1,0.63

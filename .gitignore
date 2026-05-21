@@ -1,0 +1,40 @@
+"*" 
+"!**/*.py" 
+"!.gitignore" 
+
+railwayrescheduling/
+
+# --- Ambiente di Sviluppo e Cache ---
+.venv/
+__pycache__/
+*.pyc
+.vscode/
+.DS_Store
+*.code-workspace
+
+# --- File di Input / Eseguibili Pesanti ---
+cplex
+my_job.slurm
+output.log
+sources.txt
+Terminal_input.sh
+
+# --- Directory generate in automatico (NON caricarle) ---
+output/
+test_greedy/
+_generated_solutions/
+
+# --- File compressi inutili (visto che carichiamo le cartelle estratte) ---
+*.zip
+
+# --- Esclusioni specifiche per ripulire i dati ---
+# Rimuove il percorso Windows errato e i modelli .lp intermedi
+"C:\\*"
+results/
+results_experiments/
+
+# Rimuove i file duplicati o temporanei nelle cartelle dati (*.txt e doppi .tsv)
+Final_Rescheduled_Instances/*(R).tsv
+Final_Rescheduled_ID_Mappings/*-Transformed-Transformed-*.tsv.tsv
+RollingStockSolution_Greedy_*.txt
+

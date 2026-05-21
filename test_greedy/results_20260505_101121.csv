@@ -1,0 +1,11 @@
+instance_id,rs_method,crew_method,rs_trips_total,rs_covered,rs_canceled,id_mapping_entries,crew_duties,crew_uncovered
+S10,randomized_greedy,calculateInitialSolution,546,532,14,731,184,612
+S11,randomized_greedy,calculateInitialSolution,918,890,28,1171,263,1193
+S12,randomized_greedy,calculateInitialSolution,1537,1434,103,2016,371,1820
+S13,randomized_greedy,calculateInitialSolution,663,640,23,817,157,741
+S15,randomized_greedy,calculateInitialSolution,1634,1575,59,2030,366,2052
+S10,scored_greedy,calculateInitialSolution,546,527,19,731,184,587
+S11,scored_greedy,calculateInitialSolution,918,893,25,1171,263,1196
+S12,scored_greedy,calculateInitialSolution,1537,1481,56,2016,371,1900
+S13,scored_greedy,calculateInitialSolution,663,632,31,817,157,703
+S15,scored_greedy,calculateInitialSolution,1634,1586,48,2030,366,1950

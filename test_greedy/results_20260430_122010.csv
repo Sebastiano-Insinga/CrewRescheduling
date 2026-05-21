@@ -1,0 +1,18 @@
+instance_id,rs_method,crew_method,rs_trips_total,rs_covered,rs_canceled,id_mapping_entries,crew_duties,crew_uncovered
+S01,randomized_greedy,calculateInitialSolution,65,45,20,90,29,18
+S01,randomized_greedy,calculateInitialSolution_slack,65,45,20,90,29,18
+S01,scored_greedy,calculateInitialSolution,65,61,4,90,33,29
+S01,scored_greedy,calculateInitialSolution_slack,65,61,4,90,33,29
+
+
+
+# tutto (default): 2 rs × 2 crew = 4 combinazioni
+python SequentialRescheduling.py
+
+# solo scored_greedy RS + entrambi crew
+python SequentialRescheduling.py --rs-methods scored_greedy
+
+# combinazione specifica su S01
+python SequentialRescheduling.py --instances S01 --rs-methods scored_greedy --crew-methods calculateInitialSolution
+
+

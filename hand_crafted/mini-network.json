@@ -1,0 +1,33 @@
+{
+   "stations": [
+      { "id": 1, "name": "A" },
+      { "id": 2, "name": "B" },
+      { "id": 3, "name": "C" },
+      { "id": 4, "name": "D" }
+   ],
+   "sections": [
+      { "id": 1, "name": "A->B", "origin": 1, "destination": 2, "distance": 100.0 },
+      { "id": 2, "name": "B->C", "origin": 2, "destination": 3, "distance": 100.0 },
+      { "id": 3, "name": "C->D", "origin": 3, "destination": 4, "distance": 100.0 },
+      { "id": 4, "name": "B->A", "origin": 2, "destination": 1, "distance": 100.0 },
+      { "id": 5, "name": "C->B", "origin": 3, "destination": 2, "distance": 100.0 },
+      { "id": 6, "name": "D->C", "origin": 4, "destination": 3, "distance": 100.0 }
+   ],
+   "maintenance_points": [
+      {
+         "id": 1,
+         "name": "MaintenanceB",
+         "station": 2,
+         "maintainable_locomotive_classes": [1]
+      }
+   ],
+   "locomotive_classes": [
+      {
+         "id": 1,
+         "name": "LC1",
+         "max_kilometers_before_maintenance": 500.0,
+         "maintenance_duration": 3600,
+         "deadhead_speed": 100
+      }
+   ]
+}

@@ -1,0 +1,2 @@
+instance_id,rs_method,crew_method,rs_trips_total,rs_covered,rs_canceled,id_mapping_entries,crew_duties,crew_uncovered,crew_dh_km,crew_time_sec,vns_method,vns_uncovered,vns_deadheading,vns_breaks_violated,vns_time_sec
+S01,randomized_greedy,calculateInitialSolution_deadhead,65,61,4,104,30,17,1734.23,0.01,,,,,
