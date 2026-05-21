@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "scripts.Main",
+            "projectName": "CrewRescheduling_90b0de0b",
+            "vmArgs": "-Djava.library.path=/Users/sebastianoinsinga/Applications/CPLEX_Studio2212/cplex/bin/arm64_osx"
+        },
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "scripts.Main",
+            "projectName": "CrewRescheduling",
+            "vmArgs": "-Djava.library.path=/Users/sebastianoinsinga/Applications/CPLEX_Studio2212/cplex/bin/arm64_osx"
+        }
+    ]
+}

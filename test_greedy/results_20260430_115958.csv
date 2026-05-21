@@ -1,0 +1,7 @@
+instance_id,method,rs_trips_total,rs_covered,rs_canceled,id_mapping_entries,crew_duties,crew_uncovered
+S15,calculateInitialSolution,1634,1453,181,2030,365,1360
+S16,calculateInitialSolution,499,328,171,594,133,217
+S17,calculateInitialSolution,1853,1578,275,2301,411,1422
+S15,calculateInitialSolution_slack,1634,1453,181,2030,365,1360
+S16,calculateInitialSolution_slack,499,328,171,594,133,217
+S17,calculateInitialSolution_slack,1853,1578,275,2301,411,1422

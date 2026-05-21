@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "CrewRescheduling",
+			"path": ".."
+		},
+		{
+			"name": "single_type",
+			"path": "../../Downloads/single_type"
+		},
+		{
+			"name": "single",
+			"path": "../../Downloads/soluzioni_istanze_pubbliche/single"
+		}
+	],
+	"settings": {}
+}

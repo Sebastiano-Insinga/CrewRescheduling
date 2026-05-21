@@ -1,0 +1,15 @@
+instance_id,method,rs_trips_total,rs_covered,rs_canceled,id_mapping_entries,crew_duties,crew_uncovered
+S01,calculateInitialSolution,65,45,20,90,29,18
+S02,calculateInitialSolution,122,85,37,160,64,30
+S03,calculateInitialSolution,57,46,11,79,20,26
+S04,calculateInitialSolution,110,102,8,146,43,65
+S05,calculateInitialSolution,143,132,11,188,52,84
+S06,calculateInitialSolution,210,190,20,282,82,140
+S07,calculateInitialSolution,176,87,89,225,48,49
+S01,calculateInitialSolution_slack,65,45,20,90,29,18
+S02,calculateInitialSolution_slack,122,85,37,160,64,30
+S03,calculateInitialSolution_slack,57,46,11,79,20,26
+S04,calculateInitialSolution_slack,110,102,8,146,43,65
+S05,calculateInitialSolution_slack,143,132,11,188,52,84
+S06,calculateInitialSolution_slack,210,190,20,282,82,140
+S07,calculateInitialSolution_slack,176,87,89,225,48,49

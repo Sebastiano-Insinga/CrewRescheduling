@@ -1,0 +1,9 @@
+instance_id,rs_method,crew_method,rs_trips_total,rs_covered,rs_canceled,id_mapping_entries,crew_duties,crew_uncovered,vns_method,vns_uncovered,vns_deadheading,vns_breaks_violated,vns_time_sec
+S08,randomized_greedy,calculateInitialSolutionBreak,280,134,146,240,40,105,,,,,
+S08,randomized_greedy,calculateInitialSolution_taskScarcity,280,134,146,240,40,114,,,,,
+S08,scored_greedy,calculateInitialSolutionBreak,280,135,145,240,40,100,,,,,
+S08,scored_greedy,calculateInitialSolution_taskScarcity,280,135,145,240,40,103,,,,,
+S09,randomized_greedy,calculateInitialSolutionBreak,314,293,21,412,99,294,,,,,
+S09,randomized_greedy,calculateInitialSolution_taskScarcity,314,293,21,412,99,343,,,,,
+S09,scored_greedy,calculateInitialSolutionBreak,314,295,19,412,99,323,,,,,
+S09,scored_greedy,calculateInitialSolution_taskScarcity,314,295,19,412,99,347,,,,,

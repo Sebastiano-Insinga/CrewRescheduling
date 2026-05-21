@@ -1,0 +1,1174 @@
+{
+  "50": [
+    {
+      "id": 60,
+      "origin": 4377,
+      "destination": 4630,
+      "departure": 4012,
+      "arrival": 4073
+    },
+    {
+      "id": 61,
+      "origin": 4630,
+      "destination": 4718,
+      "departure": 4073,
+      "arrival": 4133
+    },
+    {
+      "id": 62,
+      "origin": 4718,
+      "destination": 6263,
+      "departure": 4495,
+      "arrival": 4533
+    },
+    {
+      "id": 63,
+      "origin": 6263,
+      "destination": 1938,
+      "departure": 4533,
+      "arrival": 4668
+    }
+  ],
+  "62": [
+    {
+      "id": 105,
+      "origin": 4621,
+      "destination": 3638,
+      "departure": 3924,
+      "arrival": 3985
+    },
+    {
+      "id": 233,
+      "origin": 3638,
+      "destination": 4621,
+      "departure": 4055,
+      "arrival": 4116
+    },
+    {
+      "id": 200,
+      "origin": 7331,
+      "destination": 1014,
+      "departure": 4284,
+      "arrival": 4286
+    },
+    {
+      "id": 201,
+      "origin": 1014,
+      "destination": 2997,
+      "departure": 4339,
+      "arrival": 4409
+    },
+    {
+      "id": 202,
+      "origin": 2997,
+      "destination": 3480,
+      "departure": 4424,
+      "arrival": 4472
+    },
+    {
+      "id": 203,
+      "origin": 3480,
+      "destination": 1419,
+      "departure": 4483,
+      "arrival": 4560
+    }
+  ],
+  "38": [
+    {
+      "id": 3,
+      "origin": 3125,
+      "destination": 4475,
+      "departure": 3925,
+      "arrival": 4022
+    },
+    {
+      "id": 4,
+      "origin": 4475,
+      "destination": 3152,
+      "departure": 4022,
+      "arrival": 4064
+    },
+    {
+      "id": 5,
+      "origin": 3152,
+      "destination": 699,
+      "departure": 4191,
+      "arrival": 4222
+    },
+    {
+      "id": 6,
+      "origin": 699,
+      "destination": 5789,
+      "departure": 4222,
+      "arrival": 4427
+    }
+  ],
+  "5": [
+    {
+      "id": 32,
+      "origin": 3139,
+      "destination": 1453,
+      "departure": 3952,
+      "arrival": 4131
+    }
+  ],
+  "6": [
+    {
+      "id": 144,
+      "origin": 1453,
+      "destination": 6116,
+      "departure": 4011,
+      "arrival": 4213
+    }
+  ],
+  "70": [
+    {
+      "id": 123,
+      "origin": 5789,
+      "destination": 669,
+      "departure": 4039,
+      "arrival": 4187
+    },
+    {
+      "id": 124,
+      "origin": 669,
+      "destination": 3480,
+      "departure": 4197,
+      "arrival": 4275
+    },
+    {
+      "id": 125,
+      "origin": 3480,
+      "destination": 2997,
+      "departure": 4284,
+      "arrival": 4329
+    }
+  ],
+  "76": [
+    {
+      "id": 184,
+      "origin": 3480,
+      "destination": 3152,
+      "departure": 4231,
+      "arrival": 4265
+    },
+    {
+      "id": 185,
+      "origin": 3152,
+      "destination": 4185,
+      "departure": 4445,
+      "arrival": 4626
+    }
+  ],
+  "19": [
+    {
+      "id": 199,
+      "origin": 1184,
+      "destination": 7331,
+      "departure": 4269,
+      "arrival": 4284
+    },
+    {
+      "id": 127,
+      "origin": 7331,
+      "destination": 5498,
+      "departure": 4410,
+      "arrival": 4482
+    },
+    {
+      "id": 128,
+      "origin": 5498,
+      "destination": 3125,
+      "departure": 4709,
+      "arrival": 4765
+    },
+    {
+      "id": 129,
+      "origin": 3125,
+      "destination": 5100,
+      "departure": 4765,
+      "arrival": 4817
+    }
+  ],
+  "33": [
+    {
+      "id": 237,
+      "origin": 4718,
+      "destination": 3349,
+      "departure": 5164,
+      "arrival": 5237
+    },
+    {
+      "id": 238,
+      "origin": 3349,
+      "destination": 960,
+      "departure": 5280,
+      "arrival": 5292
+    },
+    {
+      "id": 239,
+      "origin": 960,
+      "destination": 699,
+      "departure": 5292,
+      "arrival": 5504
+    },
+    {
+      "id": 240,
+      "origin": 699,
+      "destination": 3152,
+      "departure": 5625,
+      "arrival": 5651
+    },
+    {
+      "id": 241,
+      "origin": 3152,
+      "destination": 5789,
+      "departure": 5651,
+      "arrival": 5871
+    }
+  ],
+  "7": [
+    {
+      "id": 33,
+      "origin": 1453,
+      "destination": 6116,
+      "departure": 4595,
+      "arrival": 4833
+    },
+    {
+      "id": 99,
+      "origin": 3139,
+      "destination": 3911,
+      "departure": 5168,
+      "arrival": 5253
+    }
+  ],
+  "78": [
+    {
+      "id": 97,
+      "origin": 3139,
+      "destination": 1453,
+      "departure": 4662,
+      "arrival": 4851
+    },
+    {
+      "id": 34,
+      "origin": 1453,
+      "destination": 3113,
+      "departure": 5295,
+      "arrival": 5363
+    }
+  ],
+  "41": [
+    {
+      "id": 234,
+      "origin": 4621,
+      "destination": 3638,
+      "departure": 4674,
+      "arrival": 4735
+    },
+    {
+      "id": 67,
+      "origin": 3638,
+      "destination": 4621,
+      "departure": 4855,
+      "arrival": 4918
+    },
+    {
+      "id": 107,
+      "origin": 4621,
+      "destination": 3638,
+      "departure": 5124,
+      "arrival": 5187
+    },
+    {
+      "id": 108,
+      "origin": 3638,
+      "destination": 4621,
+      "departure": 5285,
+      "arrival": 5346
+    }
+  ],
+  "26": [
+    {
+      "id": 106,
+      "origin": 3638,
+      "destination": 4621,
+      "departure": 4685,
+      "arrival": 4746
+    },
+    {
+      "id": 66,
+      "origin": 4621,
+      "destination": 3638,
+      "departure": 4794,
+      "arrival": 4855
+    },
+    {
+      "id": 235,
+      "origin": 3638,
+      "destination": 6263,
+      "departure": 4915,
+      "arrival": 5019
+    },
+    {
+      "id": 236,
+      "origin": 6263,
+      "destination": 4718,
+      "departure": 5132,
+      "arrival": 5164
+    }
+  ],
+  "36": [
+    {
+      "id": 215,
+      "origin": 3125,
+      "destination": 6563,
+      "departure": 6532,
+      "arrival": 6565
+    },
+    {
+      "id": 216,
+      "origin": 6563,
+      "destination": 2759,
+      "departure": 6565,
+      "arrival": 6733
+    },
+    {
+      "id": 217,
+      "origin": 2759,
+      "destination": 699,
+      "departure": 7096,
+      "arrival": 7230
+    }
+  ],
+  "29": [
+    {
+      "id": 145,
+      "origin": 6116,
+      "destination": 4513,
+      "departure": 4821,
+      "arrival": 5079
+    },
+    {
+      "id": 146,
+      "origin": 4513,
+      "destination": 6849,
+      "departure": 5088,
+      "arrival": 5174
+    },
+    {
+      "id": 147,
+      "origin": 6849,
+      "destination": 4513,
+      "departure": 5265,
+      "arrival": 5351
+    },
+    {
+      "id": 148,
+      "origin": 4513,
+      "destination": 4196,
+      "departure": 5359,
+      "arrival": 5448
+    },
+    {
+      "id": 149,
+      "origin": 4196,
+      "destination": 1453,
+      "departure": 5457,
+      "arrival": 5504
+    }
+  ],
+  "73": [
+    {
+      "id": 98,
+      "origin": 1453,
+      "destination": 3139,
+      "departure": 4988,
+      "arrival": 5168
+    },
+    {
+      "id": 72,
+      "origin": 4446,
+      "destination": 4238,
+      "departure": 5533,
+      "arrival": 5569
+    }
+  ],
+  "35": [
+    {
+      "id": 166,
+      "origin": 2759,
+      "destination": 699,
+      "departure": 5008,
+      "arrival": 5129
+    },
+    {
+      "id": 167,
+      "origin": 699,
+      "destination": 996,
+      "departure": 5129,
+      "arrival": 5300
+    },
+    {
+      "id": 168,
+      "origin": 996,
+      "destination": 2925,
+      "departure": 5354,
+      "arrival": 5427
+    },
+    {
+      "id": 169,
+      "origin": 2925,
+      "destination": 5789,
+      "departure": 5427,
+      "arrival": 5448
+    }
+  ],
+  "24": [
+    {
+      "id": 68,
+      "origin": 4621,
+      "destination": 3638,
+      "departure": 5094,
+      "arrival": 5155
+    },
+    {
+      "id": 69,
+      "origin": 3638,
+      "destination": 4513,
+      "departure": 5155,
+      "arrival": 5345
+    },
+    {
+      "id": 70,
+      "origin": 4513,
+      "destination": 4377,
+      "departure": 5359,
+      "arrival": 5447
+    },
+    {
+      "id": 136,
+      "origin": 3638,
+      "destination": 4621,
+      "departure": 5585,
+      "arrival": 5646
+    }
+  ],
+  "16": [
+    {
+      "id": 205,
+      "origin": 6990,
+      "destination": 6844,
+      "departure": 5165,
+      "arrival": 5184
+    },
+    {
+      "id": 206,
+      "origin": 6844,
+      "destination": 5789,
+      "departure": 5184,
+      "arrival": 5193
+    },
+    {
+      "id": 207,
+      "origin": 5789,
+      "destination": 669,
+      "departure": 5276,
+      "arrival": 5435
+    },
+    {
+      "id": 208,
+      "origin": 669,
+      "destination": 3480,
+      "departure": 5439,
+      "arrival": 5523
+    },
+    {
+      "id": 209,
+      "origin": 3480,
+      "destination": 2997,
+      "departure": 5540,
+      "arrival": 5586
+    },
+    {
+      "id": 210,
+      "origin": 2997,
+      "destination": 7331,
+      "departure": 5609,
+      "arrival": 5681
+    },
+    {
+      "id": 211,
+      "origin": 7331,
+      "destination": 3152,
+      "departure": 5681,
+      "arrival": 5845
+    }
+  ],
+  "72": [
+    {
+      "id": 7,
+      "origin": 5789,
+      "destination": 669,
+      "departure": 5183,
+      "arrival": 5325
+    },
+    {
+      "id": 8,
+      "origin": 669,
+      "destination": 1419,
+      "departure": 5328,
+      "arrival": 5428
+    },
+    {
+      "id": 9,
+      "origin": 6849,
+      "destination": 1419,
+      "departure": 5759,
+      "arrival": 5761
+    }
+  ],
+  "40": [
+    {
+      "id": 77,
+      "origin": 3349,
+      "destination": 6296,
+      "departure": 7602,
+      "arrival": 7651
+    },
+    {
+      "id": 78,
+      "origin": 6296,
+      "destination": 7191,
+      "departure": 7651,
+      "arrival": 7739
+    },
+    {
+      "id": 79,
+      "origin": 7191,
+      "destination": 4377,
+      "departure": 7848,
+      "arrival": 7930
+    },
+    {
+      "id": 80,
+      "origin": 4377,
+      "destination": 7191,
+      "departure": 7930,
+      "arrival": 8042
+    }
+  ],
+  "8": [
+    {
+      "id": 186,
+      "origin": 4185,
+      "destination": 3631,
+      "departure": 5357,
+      "arrival": 5395
+    },
+    {
+      "id": 212,
+      "origin": 3152,
+      "destination": 1419,
+      "departure": 5932,
+      "arrival": 5983
+    }
+  ],
+  "17": [
+    {
+      "id": 132,
+      "origin": 5100,
+      "destination": 4888,
+      "departure": 5396,
+      "arrival": 5442
+    },
+    {
+      "id": 133,
+      "origin": 4888,
+      "destination": 7331,
+      "departure": 5456,
+      "arrival": 5464
+    },
+    {
+      "id": 134,
+      "origin": 7331,
+      "destination": 750,
+      "departure": 5488,
+      "arrival": 5515
+    },
+    {
+      "id": 135,
+      "origin": 750,
+      "destination": 3638,
+      "departure": 5515,
+      "arrival": 5573
+    },
+    {
+      "id": 109,
+      "origin": 4621,
+      "destination": 3638,
+      "departure": 5759,
+      "arrival": 5822
+    },
+    {
+      "id": 13,
+      "origin": 7331,
+      "destination": 1014,
+      "departure": 6085,
+      "arrival": 6087
+    }
+  ],
+  "13": [
+    {
+      "id": 10,
+      "origin": 1419,
+      "destination": 3480,
+      "departure": 5835,
+      "arrival": 5914
+    },
+    {
+      "id": 11,
+      "origin": 3480,
+      "destination": 2997,
+      "departure": 5926,
+      "arrival": 5972
+    },
+    {
+      "id": 12,
+      "origin": 2997,
+      "destination": 7331,
+      "departure": 6005,
+      "arrival": 6085
+    },
+    {
+      "id": 246,
+      "origin": 7331,
+      "destination": 1014,
+      "departure": 6421,
+      "arrival": 6423
+    }
+  ],
+  "47": [
+    {
+      "id": 213,
+      "origin": 1419,
+      "destination": 4475,
+      "departure": 5983,
+      "arrival": 6081
+    },
+    {
+      "id": 214,
+      "origin": 4475,
+      "destination": 3125,
+      "departure": 6084,
+      "arrival": 6182
+    },
+    {
+      "id": 174,
+      "origin": 7331,
+      "destination": 1014,
+      "departure": 6561,
+      "arrival": 6563
+    }
+  ],
+  "25": [
+    {
+      "id": 242,
+      "origin": 5789,
+      "destination": 669,
+      "departure": 6021,
+      "arrival": 6175
+    },
+    {
+      "id": 243,
+      "origin": 669,
+      "destination": 3480,
+      "departure": 6178,
+      "arrival": 6269
+    },
+    {
+      "id": 244,
+      "origin": 3480,
+      "destination": 2997,
+      "departure": 6281,
+      "arrival": 6326
+    },
+    {
+      "id": 173,
+      "origin": 2997,
+      "destination": 7331,
+      "departure": 6478,
+      "arrival": 6561
+    }
+  ],
+  "30": [
+    {
+      "id": 100,
+      "origin": 3911,
+      "destination": 1453,
+      "departure": 6058,
+      "arrival": 6165
+    },
+    {
+      "id": 101,
+      "origin": 1453,
+      "destination": 1075,
+      "departure": 6165,
+      "arrival": 6172
+    },
+    {
+      "id": 102,
+      "origin": 1075,
+      "destination": 997,
+      "departure": 6225,
+      "arrival": 6262
+    },
+    {
+      "id": 103,
+      "origin": 997,
+      "destination": 1453,
+      "departure": 6262,
+      "arrival": 6291
+    },
+    {
+      "id": 152,
+      "origin": 1075,
+      "destination": 1453,
+      "departure": 6754,
+      "arrival": 6761
+    }
+  ],
+  "57": [
+    {
+      "id": 150,
+      "origin": 1453,
+      "destination": 4377,
+      "departure": 6076,
+      "arrival": 6177
+    },
+    {
+      "id": 151,
+      "origin": 4377,
+      "destination": 1075,
+      "departure": 6602,
+      "arrival": 6754
+    }
+  ],
+  "22": [
+    {
+      "id": 35,
+      "origin": 3113,
+      "destination": 1453,
+      "departure": 6132,
+      "arrival": 6195
+    },
+    {
+      "id": 36,
+      "origin": 1453,
+      "destination": 4196,
+      "departure": 6195,
+      "arrival": 6248
+    },
+    {
+      "id": 37,
+      "origin": 4196,
+      "destination": 4513,
+      "departure": 6553,
+      "arrival": 6639
+    },
+    {
+      "id": 38,
+      "origin": 4513,
+      "destination": 5818,
+      "departure": 6639,
+      "arrival": 6646
+    },
+    {
+      "id": 39,
+      "origin": 5818,
+      "destination": 4377,
+      "departure": 6665,
+      "arrival": 6783
+    },
+    {
+      "id": 40,
+      "origin": 4377,
+      "destination": 4446,
+      "departure": 6783,
+      "arrival": 6806
+    }
+  ],
+  "37": [
+    {
+      "id": 73,
+      "origin": 6804,
+      "destination": 7191,
+      "departure": 6145,
+      "arrival": 6294
+    },
+    {
+      "id": 74,
+      "origin": 7191,
+      "destination": 5885,
+      "departure": 6334,
+      "arrival": 6379
+    },
+    {
+      "id": 75,
+      "origin": 5885,
+      "destination": 4446,
+      "departure": 6379,
+      "arrival": 6414
+    },
+    {
+      "id": 76,
+      "origin": 4446,
+      "destination": 3349,
+      "departure": 6552,
+      "arrival": 6600
+    }
+  ],
+  "51": [
+    {
+      "id": 110,
+      "origin": 3638,
+      "destination": 4621,
+      "departure": 6155,
+      "arrival": 6216
+    },
+    {
+      "id": 111,
+      "origin": 4621,
+      "destination": 3638,
+      "departure": 6504,
+      "arrival": 6565
+    },
+    {
+      "id": 112,
+      "origin": 3638,
+      "destination": 2221,
+      "departure": 6565,
+      "arrival": 6566
+    }
+  ],
+  "49": [
+    {
+      "id": 170,
+      "origin": 5789,
+      "destination": 669,
+      "departure": 6157,
+      "arrival": 6327
+    },
+    {
+      "id": 171,
+      "origin": 669,
+      "destination": 3480,
+      "departure": 6333,
+      "arrival": 6416
+    },
+    {
+      "id": 172,
+      "origin": 3480,
+      "destination": 2997,
+      "departure": 6424,
+      "arrival": 6468
+    }
+  ],
+  "54": [
+    {
+      "id": 187,
+      "origin": 3631,
+      "destination": 508,
+      "departure": 6163,
+      "arrival": 6228
+    },
+    {
+      "id": 188,
+      "origin": 508,
+      "destination": 3631,
+      "departure": 6228,
+      "arrival": 6281
+    },
+    {
+      "id": 189,
+      "origin": 3631,
+      "destination": 2925,
+      "departure": 6656,
+      "arrival": 6687
+    }
+  ],
+  "32": [
+    {
+      "id": 15,
+      "origin": 2997,
+      "destination": 3480,
+      "departure": 6348,
+      "arrival": 6396
+    },
+    {
+      "id": 16,
+      "origin": 3480,
+      "destination": 1419,
+      "departure": 6406,
+      "arrival": 6482
+    },
+    {
+      "id": 17,
+      "origin": 1419,
+      "destination": 2759,
+      "departure": 6482,
+      "arrival": 6534
+    },
+    {
+      "id": 18,
+      "origin": 2759,
+      "destination": 1419,
+      "departure": 6541,
+      "arrival": 6585
+    },
+    {
+      "id": 247,
+      "origin": 1014,
+      "destination": 5100,
+      "departure": 7005,
+      "arrival": 7059
+    }
+  ],
+  "67": [
+    {
+      "id": 23,
+      "origin": 3125,
+      "destination": 6849,
+      "departure": 9598,
+      "arrival": 9753
+    },
+    {
+      "id": 24,
+      "origin": 6849,
+      "destination": 2759,
+      "departure": 9759,
+      "arrival": 9788
+    }
+  ],
+  "14": [
+    {
+      "id": 182,
+      "origin": 1014,
+      "destination": 2997,
+      "departure": 4083,
+      "arrival": 4149
+    },
+    {
+      "id": 183,
+      "origin": 2997,
+      "destination": 3480,
+      "departure": 4168,
+      "arrival": 4217
+    },
+    {
+      "id": 126,
+      "origin": 2997,
+      "destination": 7331,
+      "departure": 4343,
+      "arrival": 4410
+    }
+  ],
+  "39": [
+    {
+      "id": 220,
+      "origin": 3959,
+      "destination": 6849,
+      "departure": 7580,
+      "arrival": 7620
+    },
+    {
+      "id": 221,
+      "origin": 6849,
+      "destination": 4513,
+      "departure": 8025,
+      "arrival": 8111
+    }
+  ],
+  "31": [
+    {
+      "id": 19,
+      "origin": 1419,
+      "destination": 3480,
+      "departure": 7115,
+      "arrival": 7205
+    },
+    {
+      "id": 20,
+      "origin": 3480,
+      "destination": 2997,
+      "departure": 7222,
+      "arrival": 7267
+    },
+    {
+      "id": 21,
+      "origin": 2997,
+      "destination": 7331,
+      "departure": 7281,
+      "arrival": 7346
+    },
+    {
+      "id": 22,
+      "origin": 7331,
+      "destination": 3125,
+      "departure": 7346,
+      "arrival": 7351
+    }
+  ],
+  "69": [
+    {
+      "id": 250,
+      "origin": 3480,
+      "destination": 669,
+      "departure": 7172,
+      "arrival": 7248
+    },
+    {
+      "id": 251,
+      "origin": 669,
+      "destination": 830,
+      "departure": 7259,
+      "arrival": 7406
+    }
+  ],
+  "60": [
+    {
+      "id": 175,
+      "origin": 1014,
+      "destination": 5100,
+      "departure": 7189,
+      "arrival": 7238
+    },
+    {
+      "id": 176,
+      "origin": 5100,
+      "destination": 2997,
+      "departure": 7255,
+      "arrival": 7283
+    },
+    {
+      "id": 177,
+      "origin": 2997,
+      "destination": 3480,
+      "departure": 7294,
+      "arrival": 7342
+    },
+    {
+      "id": 178,
+      "origin": 3480,
+      "destination": 669,
+      "departure": 7353,
+      "arrival": 7427
+    }
+  ],
+  "45": [
+    {
+      "id": 41,
+      "origin": 4446,
+      "destination": 4377,
+      "departure": 7316,
+      "arrival": 7337
+    },
+    {
+      "id": 42,
+      "origin": 4377,
+      "destination": 4630,
+      "departure": 7343,
+      "arrival": 7425
+    },
+    {
+      "id": 43,
+      "origin": 4630,
+      "destination": 4513,
+      "departure": 7425,
+      "arrival": 7551
+    }
+  ],
+  "9": [
+    {
+      "id": 113,
+      "origin": 2221,
+      "destination": 86,
+      "departure": 7378,
+      "arrival": 7407
+    }
+  ],
+  "75": [
+    {
+      "id": 44,
+      "origin": 4513,
+      "destination": 6116,
+      "departure": 8119,
+      "arrival": 8380
+    }
+  ],
+  "10": [
+    {
+      "id": 153,
+      "origin": 1453,
+      "destination": 3631,
+      "departure": 8740,
+      "arrival": 8877
+    },
+    {
+      "id": 81,
+      "origin": 7191,
+      "destination": 4377,
+      "departure": 9288,
+      "arrival": 9370
+    }
+  ],
+  "66": [
+    {
+      "id": 82,
+      "origin": 4377,
+      "destination": 7191,
+      "departure": 9410,
+      "arrival": 9503
+    },
+    {
+      "id": 104,
+      "origin": 1453,
+      "destination": 960,
+      "departure": 9990,
+      "arrival": 10059
+    }
+  ],
+  "65": [
+    {
+      "id": 130,
+      "origin": 5100,
+      "destination": 7331,
+      "departure": 5034,
+      "arrival": 5100
+    },
+    {
+      "id": 131,
+      "origin": 7331,
+      "destination": 5100,
+      "departure": 5100,
+      "arrival": 5151
+    },
+    {
+      "id": 71,
+      "origin": 4377,
+      "destination": 4446,
+      "departure": 5447,
+      "arrival": 5470
+    }
+  ],
+  "11": [
+    {
+      "id": 222,
+      "origin": 4513,
+      "destination": 927,
+      "departure": 9843,
+      "arrival": 9860
+    }
+  ]
+}

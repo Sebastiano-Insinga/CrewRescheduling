@@ -1,0 +1,3 @@
+instance_id,rs_method,crew_method,rs_trips_total,rs_covered,rs_canceled,id_mapping_entries,crew_duties,crew_uncovered
+S01,scored_greedy,calculateInitialSolution,65,61,4,90,33,29
+S01,scored_greedy,calculateInitialSolution_slack,65,61,4,90,33,29
