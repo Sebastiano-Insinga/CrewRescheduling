@@ -157,6 +157,12 @@ class VNSRescheduler:
                                 label=f"loop_{'+'.join(s.__name__ for s in strategies)}")
         return self.current_result
 
+
+
+
+
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run VNS rescheduling with a chosen swap strategy.")
     parser.add_argument('-i', '--instance', nargs='+', default=None,

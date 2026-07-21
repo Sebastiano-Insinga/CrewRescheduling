@@ -115,10 +115,31 @@ File: [SolutionEvaluator.py](../../SolutionEvaluator.py)
    così [VNSRescheduler.py:39](../../VNSRescheduler.py#L39) non cambia.
 4. Riusare `check_back_home` ([SolutionEvaluator.py:16](../../SolutionEvaluator.py#L16)) invariato.
 
-**Nota di modellazione** (da tenere presente, non da "fixare" ora): `w1` moltiplica un *conteggio*
-(~O(10)) mentre `w2`/`w3` moltiplicano *metri* (~O(10^5–10^6)). Con i default il termine
-cancellazioni è numericamente irrilevante e l'objective è di fatto solo-deadhead. Esporre i pesi da
-CLI è esattamente ciò che permette di correggerlo sperimentalmente (es. `--w1 100000`).
+**Stato: Stage 2 completo.** Implementato in [SolutionEvaluator.py](../../SolutionEvaluator.py):
+`ObjectiveValue` (`total` + le 4 componenti grezze), pesi nel costruttore con nomi parlanti
+(`w_canceled`, `w_loco_dh`, `w_crew_dh`, `w_back_home`), `evaluate()` ridotto a
+`evaluate_components(...).total` — un solo posto dove l'objective si calcola.
+
+**Problema di scala risolto, non solo esposto.** I default erano `0.1 / 0.2 / 0.7 / 0.5` con le
+distanze in **metri**: `w1` moltiplicava un conteggio (~O(10)) mentre le altre moltiplicavano metri
+(~O(10^6)), quindi le cancellazioni valevano ~1 milionesimo del totale. Due correzioni:
+
+1. l'objective lavora in **km** — tutte le distanze divise per 1000 *incluso `back_home`*, che è in
+   metri come le altre (`check_back_home` somma gli stessi `sp_raw[...]['weight']`). Dimenticarne una
+   sposta soltanto lo sbilanciamento: con back_home in metri e il resto in km faceva da solo il 99.7%
+   del totale;
+2. `w_canceled = 500`, scelto rispondendo a una domanda di modello esplicita — *quanti km di deadhead
+   valgono una cancellazione?* — invece che tarando a occhio.
+
+Bilanciamento risultante su S01 (baseline): cancellazioni 56.4%, back_home 24.7%, crew dh 11.0%,
+loco dh 7.9%. Total = 9747.2.
+
+**Attenzione alle unità nei campi di `ObjectiveValue`**: `loco_dh_m` / `crew_dh_m` conservano i
+**metri** (coerente col suffisso), mentre i pesi ragionano in km. Il log riporta metri.
+
+I risultati precedenti a questo cambio non sono confrontabili sul valore di `total`; le componenti
+grezze invece restano confrontabili fra configurazioni di pesi diverse — motivo per cui
+`ObjectiveValue` le espone non pesate.
 
 ## Stage 3 — `run_loop` con semantica k corretta
 
@@ -142,7 +163,26 @@ File: [VNSRescheduler.py](../../VNSRescheduler.py), [SwapStrategies.py](../scrip
      migliorante ed escala `k`;
    - `swap_first_in_time` e `multiple_swap` restano, delegando a `select_k` con `k=1`/`k=2` e un rng
      di default, così `-s` continua a funzionare;
-   - registrare `select_k` in `SWAP_STRATEGIES` come `"select_k"`.
+   - **non** registrare `select_k` in `SWAP_STRATEGIES`: quel dict serve al CLI, che invoca
+     `strategy_fn(candidates, trips)` con due argomenti — `select_k` ne vuole quattro, quindi
+     selezionarlo per nome darebbe `TypeError`. Nel registry restano i due wrapper legacy; `run_loop`
+     chiama `SwapStrategies.select_k` direttamente, passando `k` e l'rng che possiede.
+
+   **Stato: 3a fatto.** `select_k` implementato in
+   [SwapStrategies.py:18](../scripts/SwapStrategies.py#L18); `swap_first_in_time` e `multiple_swap`
+   ridotti a una riga che delega con `k=1`/`k=2` e un `CppMT19937(42)` creato **dentro** il wrapper
+   (non a livello di modulo: così ogni chiamata riparte dal seed e il risultato è stabile, invece di
+   avanzare lo stato dell'rng fra una chiamata e l'altra). `import random` eliminato.
+
+   Verificato su fixture sintetica, senza far girare il solver (`select_k` è una funzione pura):
+   k=1 → un pair concreto; k=2,3 → primo concreto + resto sentinel; trip senza alternative saltati;
+   k oltre i trip disponibili → `None`; due chiamate consecutive → risultato identico; `trips` non
+   mutato (`sorted`, non `.sort()`).
+
+   **Cambio di semantica atteso**: il vecchio `multiple_swap` con un solo trip disponibile ne
+   restituiva uno; ora restituisce `None`, perché i trip richiesti sono due. Coerente col contratto.
+   Inoltre le run non sono più confrontabili con quelle pre-`select_k` (sorgente di casualità
+   diversa) — ma ora **sono riproducibili**, che prima non erano.
 
    **Sentinel muto, decisione presa.** La scelta interna del solver resta casuale fra le alternative
    (`rng.uniform_int`). Scartata l'idea di un "sentinel parlante" (un sentinel che porta un criterio,
