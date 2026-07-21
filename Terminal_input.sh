@@ -42,3 +42,20 @@ python SequentialRescheduling.py --crew-methods calculateInitialSolution --vns-m
 
 
 python SequentialRescheduling.py --instances S01 --crew-methods calculateInitialSolution calculateInitialSolution_deadhead
+
+
+
+                            # --------------------- IntegratedRescheduling ----------------------
+
+# IntegratedRescheduling — visualization
+python IntegratedRescheduling.py S01
+python IntegratedRescheduling.py S01 --xaxis station
+python IntegratedRescheduling.py --i S01 --xaxis time
+
+# IntegratedRescheduling -
+python IntegratedRescheduling.py --i S01          # single + Gantt
+python IntegratedRescheduling.py --i S01 S02 S05  # batch
+python IntegratedRescheduling.py                  # all S* instances
+
+python IntegratedRescheduling.py --i S01 --xaxis time --canc-per-trip 
+

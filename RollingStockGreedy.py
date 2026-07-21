@@ -192,7 +192,15 @@ def compute_disrupted_sp(network, sp: Dict, disrupted_section_ids: set) -> Dict:
         for j in used_stations:
             j_str = str(j)
             entry = sp_row.get(j_str)
-            if entry is None or entry['weight'] >= INT_MAX:
+            if entry is None:
+                # Pair missing from the precomputed SP file (some stations
+                # appear only as origins, never as destinations, even though
+                # the physical network reaches them) — compute it directly
+                # on the disrupted graph.
+                w, p = _fallback_dijkstra(i, j)
+                dsp_full[i][j] = {'weight': w, 'path': p}
+                continue
+            if entry['weight'] >= INT_MAX:
                 continue  # already inf
             orig_path: List[int] = entry['path']
             orig_w: int = entry['weight']
@@ -964,6 +972,7 @@ def candidate_locomotives(
     dsp: Optional[Dict] = None,
     dis_start: float = 0.0,
     dis_end: float = 0.0,
+    disrupted_edges: frozenset = frozenset(),
 ) -> List[int]:
     """
     Replicates CandidateLocomotives from frisch_solution.cc.
@@ -1009,7 +1018,8 @@ def candidate_locomotives(
 # Main algorithm — replicates RandomizedGreedy from frisch_solution.cc
 # ---------------------------------------------------------------------------
 
-def randomized_greedy(instance, network, sp, seed: int = 42, deterministic: bool = False) -> List[Dict]:
+def randomized_greedy(instance, network, sp, seed: int = 42, deterministic: bool = False,
+                      crew_check=None) -> List[Dict]:
     """
     Python replication of RandomizedGreedy() from frisch_solution.cc.
     Uses C++ MT19937 + uniform_int_distribution for exact RNG match.
@@ -1091,7 +1101,17 @@ def randomized_greedy(instance, network, sp, seed: int = 42, deterministic: bool
         )
         #print(f"Trip {trip_id}: candidates = {candidates}")
         if candidates:
-            chosen = candidates[rng.uniform_int(0, len(candidates) - 1)]
+            if crew_check is not None:
+                # Prefer candidates whose assignment generates crew-coverable tasks.
+                # A candidate passes if: it is already at trip_origin (no deadhead created)
+                # OR the deadhead it would create can be covered by at least one driver.
+                # Falls back to all candidates if none pass the crew check.
+                crew_feasible = [c for c in candidates
+                                 if crew_check(trip_id, c, loco_trips, loco_init)]
+                pool = crew_feasible if crew_feasible else candidates
+            else:
+                pool = candidates
+            chosen = pool[rng.uniform_int(0, len(pool) - 1)]
             assign_loco_to_trip(trip_id, chosen, loco_trips, trip_to_loco, trips_by_id)
             assign_maintenance_all(
                 loco_trips, maintenance, loco_init, initial_maint_pos,

@@ -245,3 +245,5 @@ def readRollingStockSolution(instance, sol_filename, network_data, instance_data
 
             for key, value in id_mapping.items():
                 writer.writerow([key, value])
+
+    return tasks_to_write, id_mapping

@@ -18,8 +18,6 @@ RANDOM_SEED = 42
 def _required_break_length(duty_length):
     if duty_length <= 360:
         return 0
-    elif duty_length <= 480:
-        return 30
     else:
         return 45
 
@@ -895,7 +893,9 @@ def _get_deadhead_minutes(from_station, to_station, current_time, task_departure
             if (full_path[i], full_path[i + 1]) in disrupted_edges:
                 sp_path_blocked = True
                 break
-    if sp_path_blocked:
+    if sp_path_blocked or (entry is None and dsp is not None):
+        # entry is None: pair missing from the precomputed SP file — dsp now
+        # carries a Dijkstra-computed value for it (compute_disrupted_sp).
         dist_meters = dsp.get(int(from_station), {}).get(int(to_station), float('inf'))
         used_dsp = True
     else:
