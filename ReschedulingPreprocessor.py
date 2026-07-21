@@ -16,7 +16,7 @@ def readDisruption(disruption_file):
 
 def generateReschedulingInput(original_schedule, duty_breaks, disruption_file, id_mapping):
 
-    VARIANT_AVAILABLE_WHEN_IDLE_DURING_DISRUPTION = 2 # 1 means available at next scheduled task, 2 means available at time of disruption start
+    VARIANT_AVAILABLE_WHEN_IDLE_DURING_DISRUPTION = 1 # 1 means available at next scheduled task, 2 means available at time of disruption start
 
     #print(f"the original schedule has {len(original_schedule.keys())} duties.")
     disruption_start, disruption_end, disrupted_sections = readDisruption(disruption_file)

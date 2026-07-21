@@ -104,30 +104,25 @@ def rs_solution_to_open_tasks(rs_solution, instance, network, sp):
 
 def rs_solution_to_open_tasks_via_reader(instance_id, rs_solution, network_raw, sp):
     """
-    Alternative task generation using readRollingStockSolution.
-    Writes TSV to Final_Rescheduled_Instances/ then reads it back.
+    Task generation using readRollingStockSolution.
+    Uses in-memory return value — does not read back from disk.
     Use task_source='reader' in run_instance to activate.
     """
     network_dict  = {"sections": {s["id"]: s for s in network_raw["sections"]}}
     instance_dict = read_instance_data(os.path.join(INSTANCE_DIR, f"{instance_id}.json"))
-    tsv_name      = f"Transformed-{instance_id}.tsv"
 
-    os.makedirs("Final_Rescheduled_Instances",  exist_ok=True)
-    os.makedirs("Final_Rescheduled_ID_Mappings", exist_ok=True)
-
-    readRollingStockSolution(
-        tsv_name, rs_solution, network_dict, instance_dict,
+    tasks_to_write, _ = readRollingStockSolution(
+        f"{instance_id}_rescheduled", rs_solution, network_dict, instance_dict,
         sp, 57.0, 10800.0, 3, False, "2018-09-10",
     )
 
     open_tasks = {}
-    with open(os.path.join("Final_Rescheduled_Instances", tsv_name)) as f:
-        for row in csv.reader(f, delimiter="\t"):
-            tid = int(row[0])
-            open_tasks[tid] = {
-                "id": tid, "origin": int(row[1]), "destination": int(row[2]),
-                "departure": int(row[3]), "arrival": int(row[4]),
-            }
+    for row in tasks_to_write:
+        tid = int(row[0])
+        open_tasks[tid] = {
+            "id": tid, "origin": int(row[1]), "destination": int(row[2]),
+            "departure": int(row[3]), "arrival": int(row[4]),
+        }
     return open_tasks
 
 
@@ -235,6 +230,30 @@ def run_instance(instance_id, seed=42, rs_method='randomized_greedy', method='ca
             if duty[i + 1]["departure"] < duty[i]["arrival"]:
                 print(f"[WARN] Duty {did} task {i}: overlap departure={duty[i+1]['departure']} < arrival={duty[i]['arrival']}")
     
+    # Diagnose uncovered tasks: timing vs location
+    if uncovered_tasks:
+        print(f"[UNCOVERED] Diagnosing {len(uncovered_tasks)} uncovered tasks...")
+        CREW_SPEED_KMH = 57.0
+        for task in uncovered_tasks:
+            tid = task['id']
+            best_gap = None
+            no_path_count = 0
+            for did, d in driver_status.items():
+                sp_entry = sp.get(str(d['available_from_station']), {}).get(str(task['origin']))
+                if sp_entry is None:
+                    no_path_count += 1
+                    continue
+                travel_min = (sp_entry['weight'] / 1000.0) / CREW_SPEED_KMH * 60.0
+                gap = task['departure'] - (d['available_at_time'] + travel_min)
+                if best_gap is None or gap > best_gap:
+                    best_gap = gap
+            if best_gap is None:
+                print(f"  task={tid} origin={task['origin']} dep={task['departure']} → NO PATH from any driver ({no_path_count} drivers)")
+            elif best_gap < 0:
+                print(f"  task={tid} origin={task['origin']} dep={task['departure']} → TIMING: best_gap={best_gap:.0f}min (all drivers arrive too late)")
+            else:
+                print(f"  task={tid} origin={task['origin']} dep={task['departure']} → REACHABLE but unassigned: best_gap={best_gap:.0f}min (duty/break constraint?)")
+
     #
     #   if method == 'calculateInitialSolution_deadhead':
     #    from DeadheadAudit import audit_deadhead_solution, print_duties
