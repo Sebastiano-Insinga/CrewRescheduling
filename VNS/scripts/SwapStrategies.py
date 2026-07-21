@@ -1,43 +1,40 @@
-import random
 from IntegratedRescheduling import IntegratedRescheduler
+from RollingStockGreedy import CppMT19937
 
 class SwapStrategies:
 
 
     @staticmethod
     def swap_first_in_time(all_candidates, trips):
-        sorted_trips = sorted(trips, key=lambda t: t['departure_time'])
-        for t in sorted_trips:
-            alternatives = all_candidates.get(t['id'], [])[1:]
-            if alternatives:
-                forced_pair = random.choice(alternatives)
-                return {t['id']: forced_pair}
-        return None
+        return SwapStrategies.select_k(all_candidates, trips, 1, CppMT19937(42))
 
     @staticmethod
     def multiple_swap(all_candidates, trips):
-        sorted_trips = sorted (trips, key=lambda t: t['departure_time'] )
-        found=[]
+        return SwapStrategies.select_k(all_candidates, trips, 2, CppMT19937(42))
+              
+    @staticmethod
+    # k = number of trips that we want to shake
+    def select_k(all_candidates, trips, k, rng):
+        sorted_trips = sorted(trips, key= lambda p:p["departure_time"])
+        found = []
         for t in sorted_trips:
             alternatives = all_candidates.get(t['id'], [])[1:]
             if alternatives:
                 found.append((t['id'], alternatives))
-                if len(found)==2:
+                if len(found)==k:
                     break
-        if len(found)==0:
+        if len(found)<k:
             return None
-        if len(found)==1:
-            trip_id= found[0][0]
-            alternatives = found[0][1]
-            forced_pair = random.choice(alternatives)
-            return {trip_id: forced_pair}
-        if len(found)==2:
-            trip1_id= found[0][0]
-            alternatives = found[0][1]
-            forced_pair1 = random.choice(alternatives)
-            trip2_id = found[1][0]
-            return {trip1_id: forced_pair1, trip2_id: IntegratedRescheduler.FORCED_ALTERNATIVE}
-              
+        else:
+                forced_pair = {}
+                for (i, (trip_id, alternatives)) in enumerate(found):        
+                    if i==0:
+                        forced_pair[trip_id]=alternatives[rng.uniform_int(0, len(alternatives)-1)]
+                    else:
+                        forced_pair[trip_id]= IntegratedRescheduler.FORCED_ALTERNATIVE
+                return forced_pair
+                    
+
 
     @staticmethod
     def get_swap_strategy(name):
