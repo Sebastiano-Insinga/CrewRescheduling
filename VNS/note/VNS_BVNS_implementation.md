@@ -268,6 +268,26 @@ return best
    Differenze chiave rispetto a oggi: niente loop interno su `strategies[k-1]`; `k` si resetta a 1
    sul successo e wrappa a `k_max`; **incumbent e best-so-far tracciati separatamente** (necessario
    appena si accetta un peggioramento, Stage 4) e si restituisce sempre il best-so-far.
+**Stato: 3b fatto.** `run_loop` riscritto in [VNSRescheduler.py:99](../../VNSRescheduler.py#L99) con la
+semantica corretta di k, incumbent e best-so-far separati, accumulo `cand_forced = {**incumbent_forced,
+**shakes}`, scarto delle iterazioni con `forced_failures` non vuota, flag `accepted` unico per i tre
+modi di fallire (nessuno shake disponibile / shake incompleto / objective peggiore).
+
+Prima verifica su S01 (`--loop --max-iter 6 --k-max 3 --seed 42 --vns-seed 7`): objective da 9747.2 a
+9059.8 (−687.4, −7%), 6 shake accettati su 6 iterazioni — l'accumulo funziona. Due run identiche
+danno lo stesso risultato: riproducibilità raggiunta.
+
+> ⚠️ **Da investigare: `--vns-seed` ha influenza quasi nulla.** Con vns-seed 7 e 99 il risultato è
+> identico. Causa: `select_k` sceglie i trip in modo deterministico (sempre i primi k per orario di
+> partenza) e l'rng decide una cosa sola — quale alternativa usare per il *primo* trip; gli altri
+> sono sentinel risolti dall'rng del solver (`--seed`). Con poche alternative le collisioni sono
+> frequenti e la traiettoria di ricerca è di fatto quasi deterministica.
+>
+> Conseguenza pratica: presentare risultati "mediati su N seed" sarebbe fuorviante, perché i seed
+> producono probabilmente la stessa soluzione. Rimedio naturale: `swap_random_trip` (randomizzare
+> *quale* trip toccare, non solo quale alternativa) — già previsto nello Stage 5 e ora non più
+> opzionale se serve diversificazione.
+
 3. Determinismo: rng dedicato `self.vns_rng = CppMT19937(vns_seed)` in `__init__` (riusare
    `CppMT19937` da [RollingStockGreedy.py:24](../../RollingStockGreedy.py#L24)), separato dal seed del
    greedy. Una run è replayabile da `(seed, vns_seed)`.

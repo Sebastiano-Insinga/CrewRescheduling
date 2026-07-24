@@ -8,8 +8,10 @@ from IntegratedRescheduling import setup_instance, solve_instance, IntegratedRes
 from SolutionEvaluator import SolutionEvaluator
 from LocoCrewViz import plot_loco_crew_gantt
 from VNS.scripts.SwapStrategies import SwapStrategies
+from RollingStockGreedy import CppMT19937
 
-VNS_CSV_COLUMNS = ['instance_id', 'total_trip', 'n_cancel', 'computation_time [s]']
+VNS_CSV_COLUMNS = ['instance_id', 'total_trip', 'n_cancel', 'obj_total',
+                   'loco_dh_m', 'crew_dh_m', 'back_home', 'computation_time [s]']
 
 
 def export_vns_csv(results: list, output_path: str):
@@ -26,7 +28,7 @@ def export_vns_csv(results: list, output_path: str):
 
 
 class VNSRescheduler:
-    def __init__(self, instance_id, seed: int = 42):
+    def __init__(self, instance_id, seed: int = 42, vns_seed: int = 42):
         self.instance_id = instance_id
         self.instance, self.mapper, self.net, self.dis_start, self.dis_end = setup_instance(instance_id)
         self.evaluator = SolutionEvaluator(self.mapper, self.net)
@@ -35,6 +37,9 @@ class VNSRescheduler:
         self.current_result = None
         self.current_obj = None
         self.history: list[tuple[dict, float]] = []
+        # un solo stream per l'intera run: avanza a ogni select_k, cosi' le
+        # iterazioni differiscono fra loro ma la run resta riproducibile da vns_seed
+        self.vns_rng = CppMT19937(vns_seed)
 
     def _evaluate(self, result) -> float:
         return self.evaluator.evaluate(
@@ -69,6 +74,7 @@ class VNSRescheduler:
         print(f"Gantt → {output_path}")
 
     def run_once(self, strategy_fn, export_gantt: bool = True):
+        t_start = time.time()
         rescheduling_results = solve_instance(self.instance, self.mapper, self.net, self.dis_start, self.dis_end, self.seed)
         obj_0 = self._evaluate(rescheduling_results)
         self.current_forced = {}
@@ -81,6 +87,7 @@ class VNSRescheduler:
         print(f"Forced trip from swap={forced}")
         if forced is None:
             print("No trip with alternatives found — nothing to swap.")
+            self.solve_time = time.time() - t_start
             return rescheduling_results
 
         r_new = solve_instance(self.instance, self.mapper, self.net,
@@ -90,73 +97,69 @@ class VNSRescheduler:
         delta = obj - obj_0
         print(f"[VNS run_once] baseline_obj={obj_0} new_obj={obj} delta={delta} "
               f"({'improved' if delta < 0 else 'no improvement'})")
+        self.solve_time = time.time() - t_start   # solo ricerca, Gantt escluso
         if export_gantt:
             self._export_gantt(r_new, obj, strategy_fn.__name__)
         return r_new
 
-    def run_loop(self, strategies: list, max_iter: int = 50, max_no_improve: int = 10,
-                 export_gantt: bool = True):
-        """RVNS: shake with strategies[k-1] at neighborhood k, accept on improvement
-        (reset k=1), otherwise widen (k+=1). Stops on max_iter or max_no_improve."""
-        r0 = solve_instance(self.instance, self.mapper, self.net, self.dis_start, self.dis_end, self.seed)
-        obj0 = self._evaluate(r0)
-        self.current_forced = {}
-        self.current_result = r0
-        self.current_obj    = obj0
-        self.history = [({}, obj0)]
+    def run_loop(self, k_max = 3, max_iter = 50, max_no_improve= 10,export_gantt = True):
 
-        kmax = len(strategies)
-        no_improve_count = 0
-        iter_count = 0
-        while iter_count < max_iter and no_improve_count < max_no_improve:
-            k = 1
-            improved_this_iter = False
-            while k <= kmax:
-                strategy_fn = strategies[k - 1]
-                candidates = self.current_result.all_candidates
-                forced_delta = strategy_fn(candidates, self.instance['train_sections'])
-                if forced_delta is None:
-                    k += 1
-                    continue
+        t_start = time.time()
+        s0 = solve_instance(self.instance, self.mapper, self.net, self.dis_start, self.dis_end, self.seed)
+        obj0 = self.evaluator.evaluate_components(s0.canceled_tasks, s0.dh_stats["loco_dh_m"], s0.dh_stats["crew_dh_m"], s0.existing_duties)
+        best = incumbent = s0
+        best_forced = {}
+        incumbent_forced = {}
+        best_val = incumbent_val = obj0
 
-                candidate_forced = dict(self.current_forced)
-                candidate_forced.update(forced_delta)
-                r_candidate = solve_instance(self.instance, self.mapper, self.net,
-                                              self.dis_start, self.dis_end, self.seed,
-                                              forced=candidate_forced)
-                obj_candidate = self._evaluate(r_candidate)
+        k=1
+        it=0
+        no_improve=0
 
-                if obj_candidate < self.current_obj:
-                    for trip_id, pair in forced_delta.items():
-                        baseline = candidates.get(trip_id, [{}])[0]
-                        if pair is IntegratedRescheduler.FORCED_ALTERNATIVE:
-                            print(f"    swap trip={trip_id}: baseline loco={baseline.get('loco')} "
-                                  f"drivers={baseline.get('drivers')} → FORCED_ALTERNATIVE (resolved on-the-fly)")
-                        else:
-                            print(f"    swap trip={trip_id}: baseline loco={baseline.get('loco')} "
-                                  f"drivers={baseline.get('drivers')} → loco={pair['loco']} drivers={pair['drivers']}")
-                    self.current_forced = candidate_forced
-                    self.current_result = r_candidate
-                    self.current_obj    = obj_candidate
-                    self.history.append((candidate_forced, obj_candidate))
-                    no_improve_count = 0
-                    improved_this_iter = True
-                    k = 1
+        while it < max_iter and no_improve < max_no_improve:
+            shakes = SwapStrategies.select_k(incumbent.all_candidates,self.instance["train_sections"], k, self.vns_rng )
+
+            accepted = False
+            if shakes is  None:
+                print(f"Failed shake k={k}")
+            else:
+                cand_forced = {**incumbent_forced, **shakes}
+                s1 = solve_instance(self.instance, self.mapper, self.net, self.dis_start, self.dis_end, self.seed, forced = cand_forced)
+
+                if s1.forced_failures:
+                    print(f"[k={k}] incompleted shake, failed trips: {s1.forced_failures}")
                 else:
-                    k += 1
-            iter_count += 1
-            if not improved_this_iter:
-                no_improve_count += 1
+                    obj1 = self.evaluator.evaluate_components(s1.canceled_tasks, s1.dh_stats["loco_dh_m"], s1.dh_stats["crew_dh_m"], s1.existing_duties)
+                    accepted = obj1.total < incumbent_val.total
 
-        delta = self.current_obj - obj0
-        print(f"[VNS loop] iterations={iter_count} history_len={len(self.history)} "
-              f"baseline_obj={obj0} final_obj={self.current_obj} delta={delta} "
-              f"({'improved' if delta < 0 else 'no improvement'})")
+
+            if accepted:
+                incumbent, incumbent_forced, incumbent_val = s1, cand_forced, obj1
+                if obj1.total < best_val.total:
+                    best, best_forced, best_val = s1, cand_forced, obj1
+                k = 1
+                no_improve = 0
+            else:
+                k = k + 1 if k < k_max else 1
+                no_improve += 1
+            it += 1
+
+        self.solve_time = time.time() - t_start   # solo ricerca, Gantt escluso
+
+        # esposti al chiamante (CLI/CSV): il loop restituisce solo la soluzione
+        self.current_result = best
+        self.current_forced = best_forced
+        self.current_obj    = best_val
+
+        print(f"[VNS loop] iterations={it} baseline_obj={obj0.total:.1f} "
+              f"final_obj={best_val.total:.1f} delta={best_val.total - obj0.total:.1f} "
+              f"forced_trips={len(best_forced)}")
         if export_gantt:
-            self._export_gantt(self.current_result, self.current_obj,
-                                label=f"loop_{'+'.join(s.__name__ for s in strategies)}")
-        return self.current_result
+            self._export_gantt(best, best_val.total, label=f"loop_k{k_max}")
+        return best
 
+
+        
 
 
 
@@ -167,15 +170,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run VNS rescheduling with a chosen swap strategy.")
     parser.add_argument('-i', '--instance', nargs='+', default=None,
                          help="Instance id(s) (default: all S*.json in single_type/)")
-    parser.add_argument('--seed', type=int, default=42, help="RNG seed (default: 42)")
-    parser.add_argument('-s', '--strategy', nargs='+', default=['first_in_time', 'multiple_swap'],
-                         help="Swap strategy names, in k-order (k=1,2,...). "
-                              "Options: first_in_time, multiple_swap. "
-                              "With --loop pass one per neighborhood level; "
-                              "without --loop only the first is used.")
-    parser.add_argument('--loop', action='store_true',
-                         help="Run the full RVNS loop (run_loop) instead of a single shake (run_once)")
-    parser.add_argument('--max-iter', type=int, default=50,
+    parser.add_argument('-seed', type=int, default=42, help="RNG seed (default: 42)")
+    parser.add_argument('-s', '--strategy', nargs='+', default=['first_in_time'],
+                         help="Swap strategy name. Options: first_in_time, multiple_swap. "
+                              "Only used WITHOUT --loop: in loop mode the neighborhood is built by "
+                              "select_k(k), so the strategy is not selectable.")
+    parser.add_argument('-loop', action='store_true',
+                         help="Run the full BVNS loop (run_loop) instead of a single shake (run_once)")
+    parser.add_argument('-max-iter', type=int, default=50,
                          help="Loop mode: max outer iterations (default: 50)")
     parser.add_argument('--max-no-improve', type=int, default=10,
                          help="Loop mode: stop after this many consecutive iterations without improvement (default: 10)")
@@ -183,6 +185,10 @@ if __name__ == '__main__':
                          help="Append per-instance results (instance_id, total_trip, n_cancel, "
                               "computation_time [s]) to this CSV. "
                               "Default: VNS/results/vns_results_<timestamp>.csv")
+    parser.add_argument('-k-max', type=int, default=3,
+                         help="Loop mode: max neighborhood size (number of forced trips)")
+    parser.add_argument('-vns-seed', type=int, default=42,
+                         help="Seed for the shaking RNG, independent from --seed")
     args = parser.parse_args()
 
     if args.csv:
@@ -206,19 +212,22 @@ if __name__ == '__main__':
     for iid in instance_ids:
         print(f"\n=== Instance: {iid} ===")
         try:
-            t0 = time.time()
-            vns = VNSRescheduler(iid, seed=args.seed)
+            vns = VNSRescheduler(iid, seed=args.seed, vns_seed=args.vns_seed)
             if args.loop:
-                best = vns.run_loop(strategies, max_iter=args.max_iter, max_no_improve=args.max_no_improve,
+                best = vns.run_loop(k_max=args.k_max, max_iter=args.max_iter, max_no_improve=args.max_no_improve,
                                      export_gantt=export_gantt)
             else:
                 best = vns.run_once(strategies[0], export_gantt=export_gantt)
-            elapsed = time.time() - t0
+            obj = vns.current_obj
             csv_results.append({
-                'Instance':            iid,
+                'instance_id':            iid,
                 'total_trip':             len(best.solution),
                 'n_cancel':               len(best.canceled_tasks),
-                'computation_time [s]':   round(elapsed, 2),
+                'obj_total':              round(obj.total, 2) if obj else '',
+                'loco_dh_m':              obj.loco_dh_m if obj else '',
+                'crew_dh_m':              obj.crew_dh_m if obj else '',
+                'back_home':              obj.back_home if obj else '',
+                'computation_time [s]':   round(vns.solve_time, 2),
             })
         except Exception as e:
             csv_results.append({'instance_id': iid, 'error': str(e)})
