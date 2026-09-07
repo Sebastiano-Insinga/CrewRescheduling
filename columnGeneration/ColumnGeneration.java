@@ -1091,7 +1091,11 @@ public static void exportFinalDutiesWithTasks(RMP rmp, String instanceName) thro
     // Since variables are now Integer, CPLEX will automatically use Branch-and-Bound/Cut.
     // It will assume duals are no longer needed.
     
-    double timeLimitSeconds=14400;
+    // Default 12 ore. Sovrascrivibile senza ricompilare con
+    // -Dmip.timelimit=<secondi>, cosi' su SLURM si puo' lasciare un
+    // margine rispetto al walltime per l'esportazione dei risultati.
+    double timeLimitSeconds = Double.parseDouble(
+            System.getProperty("mip.timelimit", "43200"));
     System.out.println("Time limit set:"+ timeLimitSeconds);
     rmp.setTimeLimit(timeLimitSeconds);
     
