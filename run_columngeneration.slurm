@@ -10,11 +10,14 @@
 
 . ~/.bash_profile
 . /opt/apps/2023-04-11_lmod.bash
-module load java
-module load cplex
+module load openjdk/17.0.11_9-none-none-hskcbib
+module load cplex/cplex-studio-22.2
 
-CPLEX_JAR=$CPLEX_HOME/cplex/lib/cplex.jar
-CPLEX_LIB=$CPLEX_HOME/cplex/bin/x86-64_linux
+# Il module cplex non esporta CPLEX_HOME: la root e' quella dei path che
+# prepende (vedi "module show cplex/cplex-studio-22.2").
+CPLEX_ROOT=/opt/apps/CPLEX/CPLEX_Studio222
+CPLEX_JAR=$CPLEX_ROOT/cplex/lib/cplex.jar
+CPLEX_LIB=$CPLEX_ROOT/cplex/bin/x86-64_linux
 
 REPO=$SLURM_SUBMIT_DIR
 ID=$(printf "S%02d" $SLURM_ARRAY_TASK_ID)
