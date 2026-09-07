@@ -13,9 +13,19 @@
 # TSVDIR: cartella dei TSV, relativa alla root del repo.
 # RUNTAG: nome della cartella dei risultati sotto runs/.
 
-. /opt/apps/2023-04-11_lmod.bash
+# Init di Lmod: sul nodo di calcolo "module" non e' definito di suo.
+if ! command -v module >/dev/null 2>&1; then
+    source /etc/profile.d/lmod.sh 2>/dev/null \
+        || source /opt/apps/2023-04-11_lmod.bash
+fi
+module use /opt/apps/modules/20102025
+
 module load openjdk/17.0.11_9-none-none-hskcbib
 module load cplex/cplex-studio-22.2
+
+# Se i module non hanno funzionato il job deve fallire subito, non
+# affidarsi all'ambiente ereditato dalla shell di submit.
+command -v java >/dev/null || { echo "ERRORE: java non disponibile" >&2; exit 1; }
 
 # Il module cplex non esporta CPLEX_HOME: la root e' quella dei path che
 # prepende (vedi "module show cplex/cplex-studio-22.2").
