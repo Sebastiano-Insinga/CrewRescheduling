@@ -72,7 +72,15 @@ public class Main
              "Transformed-S20.tsv"    
          */
              };
-        
+
+        // Se sono passati argomenti da riga di comando, sostituiscono la lista:
+        // ogni argomento e' il path completo di un'istanza, quindi baseDir viene azzerato.
+        // Serve per i job array SLURM (una istanza per task).
+        if (args.length > 0) {
+            baseDir = "";
+            instances = args;
+        }
+
         // Itera su tutte le istanze
         for (String instanceFile : instances) {
             String taskFilePath = baseDir + instanceFile;
