@@ -3,7 +3,7 @@
 #SBATCH --partition=medium
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=32GB
+#SBATCH --mem=128GB
 #SBATCH --time=12:00:00
 #SBATCH --array=1-20
 #SBATCH --output=logs/colgen_%A_%a.log
@@ -66,6 +66,8 @@ EOF
 
 # Limite CPLEX sul MIP: 11h, un'ora sotto il walltime di 12h, cosi' se il
 # limite scatta resta il tempo di esportare i CSV dei risultati.
-java -Xmx28g -Dmip.timelimit=39600 \
+# -Xmx e' 16 GB sotto --mem: CPLEX alloca fuori dall'heap Java (strutture
+# native del solver), e un OOM kill di SLURM non lascia traccia nel log.
+java -Xmx112g -Dmip.timelimit=39600 \
      -Djava.library.path=$CPLEX_LIB -cp "$REPO/bin:$CPLEX_JAR" \
      scripts.Main "$TSV"
