@@ -1098,6 +1098,20 @@ public static void exportFinalDutiesWithTasks(RMP rmp, String instanceName) thro
             System.getProperty("mip.timelimit", "43200"));
     System.out.println("Time limit set:"+ timeLimitSeconds);
     rmp.setTimeLimit(timeLimitSeconds);
+
+    // Gap di ottimalita' relativo, 0 = ottimo esatto (comportamento storico).
+    // Con -Dmip.gap=0.01 CPLEX si ferma all'1% dal best bound.
+    double mipGap = Double.parseDouble(System.getProperty("mip.gap", "0"));
+    if (mipGap > 0) {
+        System.out.println("MIP gap set:" + mipGap);
+        rmp.setMipGap(mipGap);
+    }
+
+    // Log del solver durante il branch-and-bound: -Dmip.log=true
+    if (Boolean.getBoolean("mip.log")) {
+        System.out.println("CPLEX solver log: ON");
+        rmp.enableSolverLog();
+    }
     
     rmp.solve();
     
