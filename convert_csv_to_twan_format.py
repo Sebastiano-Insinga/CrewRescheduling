@@ -3,11 +3,15 @@ import csv
 import os
 from pathlib import Path
 
-# Configurazione
+# Configurazione. I default valgono per una run in locale; le variabili
+# d'ambiente servono a convertire i risultati di una run sul cluster senza
+# sovrascrivere results/ e results_twan_txt/.
+# INSTANCE_DIR deve puntare alla stessa conversione usata per quella run,
+# altrimenti Duration e Costs vengono calcolati su task diversi.
 BASE_DIR = Path(__file__).parent
-CSV_INPUT_DIR = BASE_DIR / "results"
-INSTANCE_DIR = BASE_DIR / "Final_Rescheduled_Instances"
-TXT_OUTPUT_DIR = BASE_DIR / "results_twan_txt"
+CSV_INPUT_DIR = Path(os.environ.get("CSV_INPUT_DIR", BASE_DIR / "results"))
+INSTANCE_DIR = Path(os.environ.get("INSTANCE_DIR", BASE_DIR / "Final_Rescheduled_Instances"))
+TXT_OUTPUT_DIR = Path(os.environ.get("TXT_OUTPUT_DIR", BASE_DIR / "results_twan_txt"))
 
 
 def read_instance(instance_file):
