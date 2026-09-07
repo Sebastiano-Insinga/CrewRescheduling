@@ -64,5 +64,8 @@ node     : $SLURMD_NODENAME
 started  : $(date -Is)
 EOF
 
-java -Xmx28g -Djava.library.path=$CPLEX_LIB -cp "$REPO/bin:$CPLEX_JAR" \
+# Limite CPLEX sul MIP: 11h, un'ora sotto il walltime di 12h, cosi' se il
+# limite scatta resta il tempo di esportare i CSV dei risultati.
+java -Xmx28g -Dmip.timelimit=39600 \
+     -Djava.library.path=$CPLEX_LIB -cp "$REPO/bin:$CPLEX_JAR" \
      scripts.Main "$TSV"
