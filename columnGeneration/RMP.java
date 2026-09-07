@@ -400,6 +400,26 @@ public class RMP
 		    // IloCplex.Param.TimeLimit accetta il valore in secondi
 		    cplex.setParam(IloCplex.Param.TimeLimit, seconds);
 		}
+
+		/**
+		 * Gap di ottimalita' relativo: CPLEX si ferma quando la distanza fra
+		 * incumbent e best bound scende sotto questa soglia (0.01 = 1%).
+		 * Utile in fase 2, dove dimostrare l'ottimalita' esatta puo' costare
+		 * ore rispetto al trovare una soluzione di pari qualita' pratica.
+		 */
+		public void setMipGap(double gap) throws IloException {
+		    cplex.setParam(IloCplex.Param.MIP.Tolerances.MIPGap, gap);
+		}
+
+		/**
+		 * Riaccende il log del solver, spento nel costruttore con setOut(null).
+		 * In fase 1 va lasciato spento: verrebbe sommerso dai risolvimenti
+		 * dell'LP a ogni iterazione di column generation.
+		 */
+		public void enableSolverLog() {
+		    cplex.setOut(System.out);
+		    cplex.setWarning(System.err);
+		}
 		
 		
 		

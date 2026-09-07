@@ -9,9 +9,10 @@
 #SBATCH --output=logs/colgen_%A_%a.log
 
 # Uso:
-#   sbatch run_columngeneration.slurm [TSVDIR] [RUNTAG]
+#   sbatch run_columngeneration.slurm [TSVDIR] [RUNTAG] [MIPGAP]
 # TSVDIR: cartella dei TSV, relativa alla root del repo.
 # RUNTAG: nome della cartella dei risultati sotto runs/.
+# MIPGAP: gap di ottimalita' in fase 2 (0.01 = 1%). Default 0 = ottimo esatto.
 
 # Init di Lmod: sul nodo di calcolo "module" non e' definito di suo.
 if ! command -v module >/dev/null 2>&1; then
@@ -66,8 +67,14 @@ EOF
 
 # Limite CPLEX sul MIP: 11h, un'ora sotto il walltime di 12h, cosi' se il
 # limite scatta resta il tempo di esportare i CSV dei risultati.
+MIPGAP=${3:-0}
+
 # -Xmx e' 16 GB sotto --mem: CPLEX alloca fuori dall'heap Java (strutture
 # native del solver), e un OOM kill di SLURM non lascia traccia nel log.
-java -Xmx112g -Dmip.timelimit=39600 \
+# Limite CPLEX sul MIP: 11h, un'ora sotto il walltime, cosi' se il limite
+# scatta resta il tempo di esportare i CSV.
+# mip.log accende il log del solver in fase 2: senza, il branch-and-bound
+# e' completamente muto e non si vede il gap stringersi.
+java -Xmx112g -Dmip.timelimit=39600 -Dmip.gap=$MIPGAP -Dmip.log=true \
      -Djava.library.path=$CPLEX_LIB -cp "$REPO/bin:$CPLEX_JAR" \
      scripts.Main "$TSV"
