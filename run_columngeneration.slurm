@@ -8,7 +8,11 @@
 #SBATCH --array=1-20
 #SBATCH --output=logs/colgen_%A_%a.log
 
-. ~/.bash_profile
+# Uso:
+#   sbatch run_columngeneration.slurm [TSVDIR] [RUNTAG]
+# TSVDIR: cartella dei TSV, relativa alla root del repo.
+# RUNTAG: nome della cartella dei risultati sotto runs/.
+
 . /opt/apps/2023-04-11_lmod.bash
 module load openjdk/17.0.11_9-none-none-hskcbib
 module load cplex/cplex-studio-22.2
@@ -22,11 +26,8 @@ CPLEX_LIB=$CPLEX_ROOT/cplex/bin/x86-64_linux
 REPO=$SLURM_SUBMIT_DIR
 ID=$(printf "S%02d" $SLURM_ARRAY_TASK_ID)
 
-# Cartella dei TSV convertiti. Sovrascrivibile al lancio per usare una
-# conversione specifica, es.:
-#   sbatch --export=ALL,TSVDIR=conversions/20260907_1530/Final_Rescheduled_Instances \
-#          run_columngeneration.slurm
-TSVDIR=${TSVDIR:-Final_Rescheduled_Instances}
+# Cartella dei TSV convertiti, relativa alla root del repo (primo argomento).
+TSVDIR=${1:-Final_Rescheduled_Instances}
 TSV=$REPO/$TSVDIR/Transformed-$ID.tsv
 
 if [ ! -f "$TSV" ]; then
@@ -34,10 +35,10 @@ if [ ! -f "$TSV" ]; then
     exit 1
 fi
 
-# Etichetta della run: identica per tutti i task dell'array, diversa a ogni
-# sbatch, cosi' i risultati non si sovrascrivono tra submission.
-# Per un nome parlante: sbatch --export=ALL,RUNTAG=scored_greedy ...
-RUNTAG=${RUNTAG:-$SLURM_ARRAY_JOB_ID}
+# Etichetta della run (secondo argomento): identica per tutti i task
+# dell'array, diversa a ogni sbatch, cosi' i risultati non si sovrascrivono
+# tra submission. Default: id del job array.
+RUNTAG=${2:-$SLURM_ARRAY_JOB_ID}
 
 # results/ e' relativo alla CWD: una dir per istanza, niente collisioni tra task.
 RUNDIR=$REPO/runs/$RUNTAG/$ID
