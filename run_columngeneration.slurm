@@ -56,14 +56,31 @@ RUNDIR=$REPO/runs/$RUNTAG/$ID
 mkdir -p $RUNDIR/results
 cd $RUNDIR
 
-# Traccia da dove viene l'input di questa run.
+# Traccia da dove viene l'input di questa run. Il commit serve a capire, a
+# posteriori, quale versione del codice ha prodotto i risultati: con un array
+# lungo e un git pull nel mezzo, i task possono compilare sorgenti diversi.
+COMMIT=$(git -C "$REPO" rev-parse --short HEAD 2>/dev/null || echo sconosciuto)
 cat > run_info.txt <<EOF
 instance : $ID
 tsv      : $TSV
+commit   : $COMMIT
 job      : $SLURM_ARRAY_JOB_ID / task $SLURM_ARRAY_TASK_ID
 node     : $SLURMD_NODENAME
 started  : $(date -Is)
 EOF
+
+# Compilazione dentro il job: prima era un javac manuale sul login node, e
+# bastava scordarselo dopo un git pull per far girare bytecode vecchio. La
+# JVM avrebbe ignorato in silenzio le -D nuove (nessun errore, nessun log).
+#
+# La build sta in $RUNDIR/build, una per task: 20 javac in parallelo sulla
+# stessa dir si sovrascriverebbero a vicenda. Costa qualche secondo e rende
+# ogni run autosufficiente.
+BUILD=$RUNDIR/build
+mkdir -p "$BUILD"
+command -v javac >/dev/null || { echo "ERRORE: javac non disponibile" >&2; exit 1; }
+javac -cp "$CPLEX_JAR" -d "$BUILD" $(find "$REPO/java/src" -name '*.java') \
+    || { echo "ERRORE: compilazione fallita" >&2; exit 1; }
 
 # Limite CPLEX sul MIP: 11h, un'ora sotto il walltime di 12h, cosi' se il
 # limite scatta resta il tempo di esportare i CSV dei risultati.
@@ -76,5 +93,5 @@ MIPGAP=${3:-0}
 # mip.log accende il log del solver in fase 2: senza, il branch-and-bound
 # e' completamente muto e non si vede il gap stringersi.
 java -Xmx112g -Dmip.timelimit=39600 -Dmip.gap=$MIPGAP -Dmip.log=true \
-     -Djava.library.path=$CPLEX_LIB -cp "$REPO/bin:$CPLEX_JAR" \
+     -Djava.library.path=$CPLEX_LIB -cp "$BUILD:$CPLEX_JAR" \
      scripts.Main "$TSV"

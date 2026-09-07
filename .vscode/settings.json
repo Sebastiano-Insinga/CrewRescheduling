@@ -1,0 +1,13 @@
+{
+    // Senza pom.xml/build.gradle l'estensione Java usa un "invisible project" e
+    // indovina la source root risalendo dalle dichiarazioni package. Con i
+    // sorgenti spostati sotto java/src l'euristica di solito funziona, ma
+    // dichiararla esplicitamente evita errori di risoluzione fantasma.
+    "java.project.sourcePaths": [
+        "java/src"
+    ],
+    "java.project.outputPath": "java/build",
+    "java.project.referencedLibraries": [
+        "lib/cplex.jar"
+    ]
+}
