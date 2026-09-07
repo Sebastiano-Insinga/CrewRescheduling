@@ -16,8 +16,17 @@ __pycache__/
 cplex
 my_job.slurm
 output.log
-sources.txt
 Terminal_input.sh
+
+# --- Build Java: bytecode rigenerabile con javac, non va versionato ---
+# bin/ e out/ sono i vecchi output (pre-riorganizzazione), java/build/ il nuovo.
+bin/
+out/
+java/build/
+
+# --- Output delle run su cluster ---
+runs/
+logs/
 
 # --- Directory generate in automatico (NON caricarle) ---
 output/
