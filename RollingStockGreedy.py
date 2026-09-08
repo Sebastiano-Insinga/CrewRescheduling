@@ -1365,7 +1365,7 @@ def original_greedy(instance, network, sp, seed: int = None) -> List[Dict]:
 if __name__ == '__main__':
     import sys
 
-    INSTANCE_DIR       = 'single_type'
+    INSTANCE_DIR       = os.path.join('Instances', 'single_type')
     NETWORK_FILE       = os.path.join(INSTANCE_DIR, 'network.json')
     SHORTESTPATHS_FILE = os.path.join(INSTANCE_DIR, 'network-shortestpaths.json')
     OUTPUT_DIR         = 'output/rs_solution'

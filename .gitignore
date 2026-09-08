@@ -6,6 +6,8 @@ railwayrescheduling/
 
 # --- Ambiente di Sviluppo e Cache ---
 .venv/
+# venv Linux creato sul cluster: quello committato sopra e' macOS e li' non parte
+.venv-linux/
 __pycache__/
 *.pyc
 .vscode/
