@@ -14,6 +14,39 @@ def readDisruption(disruption_file):
 
     return disruption_start, disruption_end, disrupted_sections
 
+def computeBreakStatus(duty_break, disruption_start):
+    #here we define the status of the break at the time of the disruption
+    #the break can be either completed, currently in progress or not started yet
+    #then we need to differentiate between 30 mins and 45 mins breaks when the break was completed or in progress
+
+    # if all stay False, a break needs to be planned in rescheduling
+    # when a break is currently performed it will be finished and the respective starting time will be later
+    # then it will also be seen as "already done"
+    break30done = False
+    break45done = False
+    break30performing = False
+    break45performing = False
+
+    #check here if breaks were even considered in the solution of twan, otherwise a break is definitely required
+    if duty_break != None:
+        break_duration = duty_break[1]-duty_break[0]
+
+        # this means the break was already completed before the disruption happened
+        if duty_break[1] <= disruption_start:
+            if break_duration == 30:
+                break30done = True
+            elif break_duration == 45:
+                break45done = True
+        #this means the driver was currently on a break when the disruption happened
+        elif duty_break[1] > disruption_start and duty_break[0] <= disruption_start:
+            if break_duration == 30:
+                break30performing = True
+            elif break_duration == 45:
+                break45performing = True
+
+    return break30done, break45done, break30performing, break45performing
+
+
 def generateReschedulingInput(original_schedule, duty_breaks, disruption_file, id_mapping):
 
     VARIANT_AVAILABLE_WHEN_IDLE_DURING_DISRUPTION = 1 # 1 means available at next scheduled task, 2 means available at time of disruption start
@@ -40,36 +73,9 @@ def generateReschedulingInput(original_schedule, duty_breaks, disruption_file, i
     for duty_id, duty in original_schedule.items():
 
         ######################################
-        #here we define the status of the break at the time of the disruption
-        #the break can be either completed, currently in progress or not started yet
-        #then we need to differentiate between 30 mins and 45 mins breaks when the break was completed or in progress
-
-        # in the next step one of them can be set to True
-        # if all stay False, a break needs to be planned in rescheduling
-        # when a break is currently performed it will be finished and the respective starting time will be later
-        # then it will also be seen as "already done"
-        break30done = False
-        break45done = False
-        break30performing = False
-        break45performing = False
-
-        #check here if breaks were even considered in the solution of twan, otherwise a break is definitely required
-        if duty_breaks[duty_id] != None:
-            duty_break = duty_breaks[duty_id]
-            break_duration = duty_break[1]-duty_break[0]
-
-            # this means the break was already completed before the disruption happened
-            if duty_break[1] <= disruption_start:
-                if break_duration == 30:
-                    break30done = True
-                elif break_duration == 45:
-                    break45done = True
-            #this means the driver was currently on a break when the disruption happened
-            elif duty_break[1] > disruption_start and duty_break[0] <= disruption_start:
-                if break_duration == 30:
-                    break30performing = True
-                elif break_duration == 45:
-                    break45performing = True
+        break30done, break45done, break30performing, break45performing = computeBreakStatus(
+            duty_breaks[duty_id], disruption_start
+        )
 
         #######################################
         for task in original_schedule[duty_id]:
@@ -137,6 +143,13 @@ def generateReschedulingInput(original_schedule, duty_breaks, disruption_file, i
             if tasks_after_disruption:
                 min_departure_task = min(tasks_after_disruption, key=lambda task: task["departure"])
 
+                #recompute the break status for THIS duty - otherwise we would read the leftover
+                #values of the last duty iterated in the loop above
+                duty_break = duty_breaks[duty_id]
+                break30done, break45done, break30performing, break45performing = computeBreakStatus(
+                    duty_break, disruption_start
+                )
+
                 available_from_station = min_departure_task["origin"]
                 #Variant 1: driver is available at start of the next task
                 if VARIANT_AVAILABLE_WHEN_IDLE_DURING_DISRUPTION == 1:
@@ -158,7 +171,7 @@ def generateReschedulingInput(original_schedule, duty_breaks, disruption_file, i
                         available_at_time = disruption_start
                 # this is needed because the driver needs to finish the task
                 duty_length = max(0,available_at_time - original_schedule[duty_id][0]["departure"])
-                driver_status[duty_id] = {"duty_length": duty_length, "break30done": False, "break45done": False,"available_from_station": available_from_station,"available_at_time": available_at_time}
+                driver_status[duty_id] = {"duty_length": duty_length, "break30done": break30done, "break45done": break45done,"available_from_station": available_from_station,"available_at_time": available_at_time}
 
             #else:
             #    print(f"All tasks of duty {duty_id} have alredy been completed")

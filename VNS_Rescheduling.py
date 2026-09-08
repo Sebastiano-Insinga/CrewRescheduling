@@ -21,11 +21,23 @@ def _required_break_length(duty_length):
     else:
         return 45
 
-def _has_break_slot(tasks, required_break_length):
+def _has_break_slot(tasks, required_break_length, deadhead_minutes=None):
+    """Whether an idle gap between two tasks can hold the required break.
+
+    deadhead_minutes: (from_station, to_station, current_time, task_departure)
+    -> minutes. When given, the repositioning the driver has to make inside a
+    gap is subtracted from it: resting and travelling cannot happen at once.
+    Callers whose chains never move the driver leave it None and get the gross
+    gap, which is the same thing when the stations match.
+    """
     if required_break_length == 0:
         return True
     for i in range(len(tasks) - 1):
-        if tasks[i + 1]["departure"] - tasks[i]["arrival"] >= required_break_length:
+        gap = tasks[i + 1]["departure"] - tasks[i]["arrival"]
+        if deadhead_minutes is not None:
+            gap -= deadhead_minutes(tasks[i]["destination"], tasks[i + 1]["origin"],
+                                    tasks[i]["arrival"], tasks[i + 1]["departure"])
+        if gap >= required_break_length:
             return True
     return False
 
@@ -906,7 +918,7 @@ def _get_deadhead_minutes(from_station, to_station, current_time, task_departure
     return (dist_meters / 1000.0 / crew_speed_kmh) * 60.0, used_dsp
 
 
-def _is_break_feasible(tasks_with_new, new_duty_length, driver_duty):
+def _is_break_feasible(tasks_with_new, new_duty_length, driver_duty, deadhead_minutes=None):
     b30 = driver_duty["break30done"]
     b45 = driver_duty["break45done"]
     base_req = _required_break_length(new_duty_length)
@@ -916,7 +928,7 @@ def _is_break_feasible(tasks_with_new, new_duty_length, driver_duty):
         req_break = max(0, base_req - 30)
     else:
         req_break = base_req
-    return req_break == 0 or _has_break_slot(tasks_with_new, req_break)
+    return req_break == 0 or _has_break_slot(tasks_with_new, req_break, deadhead_minutes)
 
 
 def _is_task_feasible_with_deadhead(task, task_id, current_origin, current_time, first_departure,
@@ -1042,7 +1054,14 @@ def calculateInitialSolution_deadhead(original_schedule, driver_status, input_op
 
     duty_breaks = {}
     for duty_id, duty in existing_duties.items():
-        duty_length = duty[-1]["arrival"] - duty[0]["departure"]
+        # come in _is_task_feasible_with_deadhead: chi era gia' in servizio alla
+        # disruption porta con se' i minuti lavorati prima, altrimenti un turno
+        # lungo davvero risulta sotto soglia e non riceve la pausa dovuta
+        if driver_status[duty_id]["duty_length"] > 0:
+            duty_length = (duty[-1]["arrival"] - driver_status[duty_id]["available_at_time"]
+                           + driver_status[duty_id]["duty_length"])
+        else:
+            duty_length = duty[-1]["arrival"] - duty[0]["departure"]
         b30 = driver_status[duty_id]["break30done"]
         b45 = driver_status[duty_id]["break45done"]
 

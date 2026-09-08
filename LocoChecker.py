@@ -260,6 +260,16 @@ class LocoChecker:
         m = self._maintenance.get(trip_id, 0)
         return {'at_departure': m == 1, 'at_destination': m == 2}
 
+    @property
+    def maintenance_plan(self) -> dict:
+        """trip_id -> 0 / 1 (at departure) / 2 (at destination), current state.
+
+        assign_maintenance_all reshuffles the whole plan at every commit, so
+        what commit() returned for a trip may no longer hold once later trips
+        are assigned: read this at the end of the run, not along the way.
+        """
+        return dict(self._maintenance)
+
     def _split_deadhead(self, origin: int, destination: int,
                          departure: float, speed_kmh: float,
                          max_duty_length: int) -> list[dict]:
