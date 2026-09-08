@@ -113,9 +113,13 @@ class TaskFeasibilityChecker:
             return False, 0.0, 0
 
         tasks_with_new = current_tasks + [task]
-        if not _is_break_feasible(tasks_with_new, new_duty, driver_duty):
-            # Gap before the first task in the duty also qualifies as a break slot.
-            # _has_break_slot only checks inter-task gaps, missing this idle window.
+        if not _is_break_feasible(tasks_with_new, new_duty, driver_duty,
+                                  deadhead_minutes=net.deadhead_minutes):
+            # Idle time before the first task counts as a break slot only for a
+            # driver already on duty when the disruption hit: for everyone else
+            # the duty starts at that first departure, so resting before it is
+            # not service. The wait is also net of the deadhead reaching the
+            # task — dh_min, since the chain is still empty here.
             b30 = driver_duty["break30done"]
             b45 = driver_duty["break45done"]
             base_req = _required_break_length(new_duty)
@@ -125,9 +129,14 @@ class TaskFeasibilityChecker:
                 req_break = max(0, base_req - 30)
             else:
                 req_break = base_req
-            pre_gap = tasks_with_new[0]["departure"] - current_time
+            pre_gap = (tasks_with_new[0]["departure"] - current_time - dh_min
+                       if driver_duty["duty_length"] > 0 else 0)
+            # Resting after the task only works while the break still fits
+            # under the duty cap: past that the duty has to end first, and the
+            # break planner will find no slot for it either.
             next_gap_ok = (next_gap_minutes is not None
-                           and next_gap_minutes >= req_break)
+                           and next_gap_minutes >= req_break
+                           and new_duty + req_break <= self._max_duty_length)
             if not (req_break == 0 or pre_gap >= req_break or next_gap_ok):
                 return False, 0.0, 0
 
