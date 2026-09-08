@@ -1,0 +1,27 @@
+# Dipendenze Python della catena VNSRescheduler, ricavate seguendo gli import
+# a partire da VNSRescheduler.py (27 moduli locali).
+#
+# Nessuna e' opzionale: sono tutti import di modulo, quindi mancarne una
+# impedisce l'avvio, non solo una funzione.
+#
+#   plotly      LocoCrewViz (Gantt), VisualizationTools
+#   pandas      IntegratedRescheduling
+#   numpy       GraphBuilder
+#   matplotlib  VisualizationTools, GraphBuilder
+#   dash        Dashboards -- codice mai eseguito, ma importato da CrewSchedule
+#   gurobipy    ModelBuilder, tirato dentro da VNS_Rescheduling:14
+#
+# gurobipy: l'import non richiede licenza, solo la creazione di un modello. La
+# catena VNS non ne costruisce nessuno, quindi il pacchetto va installato ma la
+# licenza non serve.
+#
+# Il .venv committato nel repo e' macOS (pyvenv.cfg punta a CommandLineTools,
+# .so cpython-39-darwin): su Linux non e' utilizzabile. Sul cluster:
+#   python3 -m venv .venv-linux
+#   .venv-linux/bin/pip install -r requirements-vns.txt
+plotly
+pandas
+numpy
+matplotlib
+dash
+gurobipy

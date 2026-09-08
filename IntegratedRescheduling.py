@@ -18,7 +18,7 @@ from CrewState import CrewState
 from DebugExport import (export_task_list, export_feasible_drivers,
                           export_loco_driver_selection, export_loco_sequence)
 
-INSTANCE_DIR       = "single_type"
+INSTANCE_DIR       = os.path.join("Instances", "single_type")
 NETWORK_FILE       = os.path.join(INSTANCE_DIR, "network.json")
 SHORTESTPATHS_FILE = os.path.join(INSTANCE_DIR, "network-shortestpaths.json")
 CREW_SCHEDULE_DIR  = "results_twan_txt"
@@ -189,9 +189,9 @@ class IntegratedRescheduler:
             alternatives = new_pairs[1:]
             if alternatives:
                 pairs= [alternatives[rng.uniform_int(0, len(alternatives)-1)]]
-                print(f"Pairs found for {trip_id}: {pairs}")
+                #print(f"Pairs found for {trip_id}: {pairs}")
             else:
-                print(f"Failed shake on {trip_id}")
+                #print(f"Failed shake on {trip_id}")
                 failed = True
 
                                               
@@ -298,7 +298,20 @@ class IntegratedRescheduler:
                                         for d in crew_state.driver_ids()
                                         if crew_state.tasks(d)}     
         duty_breaks     = self._plan_breaks(existing_duties)
-        print(f"Rescue pass: canceled residui = {len(canceled_tasks)}")
+        #print(f"Rescue pass: canceled residui = {len(canceled_tasks)}")
+
+        # Le manutenzioni vengono ripianificate da assign_maintenance_all a ogni
+        # commit successivo: il flag registrato quando il trip fu assegnato
+        # invecchia, e una manutenzione aggiunta piu' tardi a un trip gia'
+        # committato non compare da nessuna parte. Riscriverli dal piano finale,
+        # come gia' si fa per duty_breaks.
+        plan = self._checker_loco.maintenance_plan
+        for e in solution:
+            if e['locomotive'] == 'canceled':
+                continue
+            m = plan.get(e['id_trip'], 0)
+            e['maintenance_at_departure']   = 'true' if m == 1 else 'false'
+            e['maintenance_at_destination'] = 'true' if m == 2 else 'false'
 
         return solution, existing_duties, duty_breaks, loco_duties, canceled_tasks, all_candidates, forced_failures
 
@@ -431,7 +444,16 @@ class IntegratedRescheduler:
             if not duty:
                 duty_breaks[duty_id] = (-45, 0)
                 continue
-            duty_length = duty[-1]['arrival'] - duty[0]['departure']
+            # Stessa formula di _is_task_feasible_with_deadhead: un driver gia'
+            # in servizio alla disruption si porta dietro i minuti gia' lavorati,
+            # e il turno parte da quando si e' liberato, non dal primo task nuovo.
+            # Misurando solo la parte visibile nel file, un driver con 500 min di
+            # carryover e 100 nel piano risulta sotto soglia e non riceve pausa.
+            if ds[duty_id]['duty_length'] > 0:
+                duty_length = (duty[-1]['arrival'] - ds[duty_id]['available_at_time']
+                               + ds[duty_id]['duty_length'])
+            else:
+                duty_length = duty[-1]['arrival'] - duty[0]['departure']
             b30 = ds[duty_id]['break30done']
             b45 = ds[duty_id]['break45done']
             base = _required_break_length(duty_length)
@@ -444,19 +466,27 @@ class IntegratedRescheduler:
             if required == 0:
                 duty_breaks[duty_id] = (-45, 0)
                 continue
-            slot = next(
-                ((a['arrival'], a['arrival'] + required)
-                 for a, b in zip(duty, duty[1:])
-                 if b['departure'] - a['arrival'] >= required),
-                None,
-            )
-            if slot is None:
-                # No gap between recorded tasks — the break falls in the idle
-                # time after the duty's last task, which isn't represented as
-                # a task here. Matches the lookahead accepted in
-                # TaskFeasibilityChecker.evaluate() via next_gap_minutes.
+            # A gap is worth only what is left once the repositioning it has to
+            # pay for is subtracted: the driver cannot rest and travel at the
+            # same time. Keep looking until a gap survives that subtraction.
+            slot = None
+            for a, b in zip(duty, duty[1:]):
+                deadhead = self._net.deadhead_minutes(
+                    a['destination'], b['origin'], a['arrival'], b['departure'])
+                if b['departure'] - a['arrival'] - deadhead >= required:
+                    slot = (a['arrival'], a['arrival'] + required)
+                    break
+
+            if slot is None and duty_length + required <= self._checker_crew.max_duty_length:
+                # No usable gap — the break falls in the idle time after the
+                # duty's last task, which isn't represented as a task here.
+                # Legal only while the duty stays within its cap. Matches the
+                # lookahead accepted in TaskFeasibilityChecker.evaluate() via
+                # next_gap_minutes.
                 last_arrival = duty[-1]['arrival']
                 slot = (last_arrival, last_arrival + required)
+
+            # None means no feasible slot at all — reported by solve_instance
             duty_breaks[duty_id] = slot
         return duty_breaks
 
@@ -543,7 +573,7 @@ def solve_instance(instance, mapper, net, disruption_start, disruption_end,
     check_deadhead(canceled_tasks, existing_duties, net)
 
     no_slot = [d for d, s in duty_breaks.items() if s is None]
-    print(f"[BreakCheck] duties with no feasible break slot: {len(no_slot)}/{len(duty_breaks)} — {no_slot}")
+    #print(f"[BreakCheck] duties with no feasible break slot: {len(no_slot)}/{len(duty_breaks)} — {no_slot}")
 
     rs_canceled = count_canceled(solution)
     rs_covered  = len(solution) - rs_canceled
@@ -620,7 +650,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', nargs='+', metavar='S01', dest='instance_ids',
-                        help='Instance IDs to run (default: all S*.json in single_type/)')
+                        help='Instance IDs to run (default: all S*.json in Instances/single_type/)')
     parser.add_argument('--xaxis','-x', choices=['index', 'station', 'time'], default='index',
                         help='X-axis mode: index (default), origin station, or minutes from disruption start')
     parser.add_argument('--seed', type=int, default=42)

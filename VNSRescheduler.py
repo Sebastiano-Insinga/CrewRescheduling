@@ -180,7 +180,7 @@ class VNSRescheduler:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run VNS rescheduling with a chosen swap strategy.")
     parser.add_argument('-i', '--instance', nargs='+', default=None,
-                         help="Instance id(s) (default: all S*.json in single_type/)")
+                         help="Instance id(s) (default: all S*.json in Instances/single_type/)")
     parser.add_argument('-seed', type=int, default=42, help="RNG seed (default: 42)")
     parser.add_argument('-s', '--strategy', nargs='+', default=['first_in_time'],
                          help="Swap strategy name. Options: first_in_time, multiple_swap. "
@@ -209,6 +209,10 @@ if __name__ == '__main__':
                          default=None,
                          help="Dump each solution as JSON for SolutionValidator. "
                               f"DIR is a directory, one file per instance (default: {SOLUTION_DIR})")
+    parser.add_argument('--no-gantt', action='store_true',
+                         help="Skip the Gantt HTML export. Thought for batch runs (e.g. one "
+                              "SLURM array task per instance), where every task counts as "
+                              "single-instance and would write a multi-MB plotly file nobody opens")
     args = parser.parse_args()
 
     if args.csv:
@@ -226,13 +230,17 @@ if __name__ == '__main__':
         instance_ids = [os.path.basename(f).replace('.json', '') for f in all_files
                         if 'network' not in f]
 
-    export_gantt = len(instance_ids) == 1  # Gantt only in single-instance mode, as in IntegratedRescheduling.py
+    # Gantt only in single-instance mode, as in IntegratedRescheduling.py; --no-gantt
+    # spegne l'export anche li', per le batch dove ogni task e' single-instance
+    export_gantt = len(instance_ids) == 1 and not args.no_gantt
 
     iter_csv_path = csv_path.replace('.csv', '_iterations.csv')
 
     # identifica la run nel nome del file soluzione: due run diverse sulla stessa
-    # istanza non si sovrascrivono
-    run_tag = (f"{args.shake}_seed{args.seed}_vns{args.vns_seed}" if args.loop
+    # istanza non si sovrascrivono. k_max entra nel tag perche' e' il parametro
+    # che distingue le batch fra loro: senza, k5 e k10 producono nomi identici e
+    # restano distinguibili solo dalla cartella che li contiene.
+    run_tag = (f"k{args.k_max}_{args.shake}_seed{args.seed}_vns{args.vns_seed}" if args.loop
                else f"{args.strategy[0]}_seed{args.seed}")
 
     csv_results = []
@@ -261,15 +269,22 @@ if __name__ == '__main__':
 
             if args.export_solution:
                 sol_path = os.path.join(args.export_solution, f"{iid}_{run_tag}.json")
+                # i parametri del loop stanno nel run_info, non solo nel nome del
+                # file: una soluzione spostata o rinominata deve restare
+                # ricollegabile alla configurazione che l'ha prodotta. In modalita'
+                # 'once' non hanno significato e restano None.
                 export_solution_json(best, {
-                    'instance_id': iid,
-                    'seed':        args.seed,
-                    'vns_seed':    args.vns_seed,
-                    'mode':        'loop' if args.loop else 'once',
-                    'shake':       args.shake if args.loop else args.strategy[0],
-                    'objective':   round(obj.total, 2) if obj else None,
-                    'solve_time':  round(vns.solve_time, 2),
-                    'forced':      vns.current_forced,
+                    'instance_id':    iid,
+                    'seed':           args.seed,
+                    'vns_seed':       args.vns_seed,
+                    'mode':           'loop' if args.loop else 'once',
+                    'shake':          args.shake if args.loop else args.strategy[0],
+                    'k_max':          args.k_max          if args.loop else None,
+                    'max_iter':       args.max_iter       if args.loop else None,
+                    'max_no_improve': args.max_no_improve if args.loop else None,
+                    'objective':      round(obj.total, 2) if obj else None,
+                    'solve_time':     round(vns.solve_time, 2),
+                    'forced':         vns.current_forced,
                 }, sol_path)
                 print(f"[Solution] → {sol_path}")
         except Exception as e:
