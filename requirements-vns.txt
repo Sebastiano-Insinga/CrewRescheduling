@@ -25,3 +25,8 @@ numpy
 matplotlib
 dash
 gurobipy
+# zoneinfo (stdlib) legge il database dei fusi dal sistema. Su un'immagine
+# minimale /usr/share/zoneinfo puo' mancare, e ZoneInfo("Europe/Vienna")
+# solleverebbe ZoneInfoNotFoundError all'import di TimeFormat. Questo pacchetto
+# e' il fallback ufficiale: pesa poco e toglie la dipendenza dall'host.
+tzdata

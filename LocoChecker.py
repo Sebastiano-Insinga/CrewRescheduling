@@ -11,6 +11,7 @@ from RollingStockGreedy import (
     assign_maintenance_all,
 )
 from RailwayNetwork import RailwayNetwork
+from TimeFormat import instance_datetime
 
 CREW_SPEED_KMH = 57.0
 LOCO_DEADHEAD_SPEED_KMH = 57.0  # fixed loco deadhead speed, overrides loco_class['deadhead_speed']
@@ -18,7 +19,7 @@ _BASELINE_DAY  = datetime(2018, 9, 10)
 
 
 def _epoch_to_minutes(epoch_seconds: float) -> int:
-    dt   = datetime.fromtimestamp(epoch_seconds)
+    dt   = instance_datetime(epoch_seconds)
     diff = dt - _BASELINE_DAY
     return diff.days * 1440 + math.ceil(dt.hour * 60 + dt.minute + dt.second / 60.0)
 

@@ -6,6 +6,7 @@ import math
 import os
 from dataclasses import dataclass
 from datetime import datetime
+from TimeFormat import instance_datetime
 
 from RollingStockGreedy import load_data, CppMT19937, count_canceled, get_deadhead_info
 from VNS_Rescheduling import _required_break_length
@@ -45,7 +46,7 @@ class SolveResult:
 
 
 def epoch_to_minutes(epoch_seconds: float) -> int:
-    dt   = datetime.fromtimestamp(epoch_seconds)
+    dt   = instance_datetime(epoch_seconds)
     diff = dt - BASELINE_DAY
     return diff.days * 1440 + math.ceil(dt.hour * 60 + dt.minute + dt.second / 60.0)
 
