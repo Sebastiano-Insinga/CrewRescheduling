@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=16GB
 #SBATCH --time=06:00:00
-#SBATCH --array=1-20
+#SBATCH --array=1-18
 #SBATCH --output=logs/vns_%A_%a.log
 
 # Uso:
@@ -57,6 +57,15 @@ ID=$(printf "S%02d" $SLURM_ARRAY_TASK_ID)
 INSTANCE=$REPO/Instances/single_type/$ID.json
 if [ ! -f "$INSTANCE" ]; then
     echo "ERRORE: istanza non trovata: $INSTANCE" >&2
+    exit 1
+fi
+
+# Il VNS gira sul set storico in results_twan_txt/, che arriva a S18: per questo
+# l'array e' 1-18 e non 1-20. Il controllo serve comunque, perche' l'istanza
+# JSON esiste anche per S19 e S20 e da sola non basta a far partire la catena.
+CREW_SCHEDULE=$REPO/results_twan_txt/Transformed-${ID}_sol.txt
+if [ ! -f "$CREW_SCHEDULE" ]; then
+    echo "ERRORE: crew schedule mancante: $CREW_SCHEDULE" >&2
     exit 1
 fi
 
