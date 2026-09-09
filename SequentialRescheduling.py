@@ -3,6 +3,7 @@ import json
 import os
 import glob
 import math
+import time
 from datetime import datetime
 import pandas as pd
 
@@ -18,9 +19,16 @@ RS_METHODS = {
 from ReadSolution_Twan import readSolution_Twan_txt_Format
 from ReschedulingPreprocessor import generateReschedulingInput
 from IDMappingReader import readIDMapping
+from TimeFormat import instance_datetime
 from VNS_Rescheduling import calculateInitialSolution, calculateInitialSolution_slack, calculateInitialSolutionBreak, calculateInitialSolution_driverMRV, calculateInitialSolution_taskScarcity, calculateInitialSolution_connectivity, calculateInitialSolution_deadhead, run_VNS
 
-INSTANCE_DIR       = "single_type"
+# Default per una run in locale. Sovrascrivibili da CLI (vedi __main__): una
+# run su una conversione diversa (es. un'altra batch di column generation) deve
+# poter puntare alle sue directory senza toccare quelle di default.
+# CREW_SCHEDULE_DIR e CREW_TASK_DIR vanno tenuti in coppia: i _sol.txt
+# contengono solo id di task, che hanno senso solo rispetto al .tsv da cui sono
+# stati generati da convert_csv_to_twan_format.py.
+INSTANCE_DIR       = "Instances/single_type"
 NETWORK_FILE       = os.path.join(INSTANCE_DIR, "network.json")
 SHORTESTPATHS_FILE = os.path.join(INSTANCE_DIR, "network-shortestpaths.json")
 CREW_SCHEDULE_DIR  = "results_twan_txt"
@@ -33,7 +41,11 @@ BASELINE_DAY = datetime(2018, 9, 10)
 
 
 def epoch_to_minutes(epoch_seconds):
-    dt = datetime.fromtimestamp(epoch_seconds)
+    # Gli epoch delle istanze sono orari locali austriaci: senza fuso esplicito
+    # il risultato dipende dalla macchina, e la finestra di disruption si
+    # sposta di 120 minuti fra Mac (CEST) e cluster (UTC). Stessa conversione
+    # gia' usata da IntegratedRescheduling (vedi TimeFormat.INSTANCE_TZ).
+    dt = instance_datetime(epoch_seconds)
     diff = dt - BASELINE_DAY
     return diff.days * 1440 + math.ceil(dt.hour * 60 + dt.minute + dt.second / 60.0)
 
@@ -151,6 +163,7 @@ def run_instance(instance_id, seed=42, rs_method='randomized_greedy', method='ca
         if not os.path.exists(f):
             raise FileNotFoundError(f"Missing: {f}")
 
+    _t0 = time.time()
     instance, network, sp = load_data(instance_file, NETWORK_FILE, SHORTESTPATHS_FILE)
     disrupted_section_ids = set(instance.get('disrupted_sections', []))
     dsp = compute_disrupted_sp(network, sp, disrupted_section_ids)
@@ -159,9 +172,13 @@ def run_instance(instance_id, seed=42, rs_method='randomized_greedy', method='ca
         for s in network.get('sections', [])
         if s['id'] in disrupted_section_ids
     }
+    setup_sec = round(time.time() - _t0, 3)
+
     # Step 1: RS Greedy
     rs_fn = RS_METHODS[rs_method]
+    _t0 = time.time()
     rs_solution = rs_fn(instance, network, sp, seed=seed) if rs_method == 'randomized_greedy' else rs_fn(instance, network, sp)
+    rs_time_sec = round(time.time() - _t0, 3)
     rs_canceled = count_canceled(rs_solution)
     rs_covered  = len(rs_solution) - rs_canceled
     print(f"[{rs_method}] trips total={len(rs_solution)}, covered={rs_covered}, canceled={rs_canceled}")
@@ -170,6 +187,7 @@ def run_instance(instance_id, seed=42, rs_method='randomized_greedy', method='ca
         json.dump(rs_solution, f, indent=2)
 
     # Step 2: driver_status from original crew schedule
+    _t0 = time.time()
     id_mapping = readIDMapping(id_mapping_file)
     print(f"[ID Mapping] loaded {len(id_mapping)} entries")
     original_schedule, duty_breaks = readSolution_Twan_txt_Format(crew_schedule_file, crew_task_file)
@@ -184,6 +202,7 @@ def run_instance(instance_id, seed=42, rs_method='randomized_greedy', method='ca
         open_tasks = rs_solution_to_open_tasks(rs_solution, instance, network, sp)
     print(f"[open_tasks/{task_source}] {len(open_tasks)} tasks vs id_mapping {len(id_mapping)} entries (delta={len(open_tasks)-len(id_mapping):+d})")
     suitable_tasks = {driver_id: list(open_tasks.keys()) for driver_id in driver_status}
+    crew_prep_sec = round(time.time() - _t0, 3)
 
     # Step 4: Crew Rescheduling (greedy initial solution)
     disruption_start = epoch_to_minutes(instance['disruption_start'])
@@ -278,6 +297,14 @@ def run_instance(instance_id, seed=42, rs_method='randomized_greedy', method='ca
         'crew_uncovered':     len(uncovered_tasks),
         'crew_dh_km':         round(crew_dh_km, 2),
         'crew_time_sec':      crew_time_sec,
+        'setup_time_sec':     setup_sec,
+        'rs_time_sec':        rs_time_sec,
+        'crew_prep_time_sec': crew_prep_sec,
+        'solve_time_sec':     round(rs_time_sec + crew_time_sec, 3),
+        '_rs_solution':       rs_solution,
+        '_instance':          instance,
+        '_network':           network,
+        '_sp':                sp,
         'vns_method':         vns_method or '',
         'vns_uncovered':      '',
         'vns_deadheading':    '',
@@ -349,7 +376,28 @@ if __name__ == '__main__':
                         help='VNS random seed multiplier (default: 1)')
     parser.add_argument('--task-source', choices=['reader', 'inline'], default='reader', dest='task_source',
                         help='Task generation method (default: reader)')
+    parser.add_argument('--instance-dir', default=INSTANCE_DIR, dest='instance_dir',
+                        help=f'Directory of the S*.json instances (default: {INSTANCE_DIR})')
+    parser.add_argument('--crew-schedule-dir', default=CREW_SCHEDULE_DIR, dest='crew_schedule_dir',
+                        help=f'Directory of the Transformed-{{id}}_sol.txt files (default: {CREW_SCHEDULE_DIR})')
+    parser.add_argument('--crew-task-dir', default=CREW_TASK_DIR, dest='crew_task_dir',
+                        help=f'Directory of the Transformed-{{id}}.tsv files (default: {CREW_TASK_DIR})')
+    parser.add_argument('--id-mapping-dir', default=ID_MAPPING_DIR, dest='id_mapping_dir',
+                        help=f'Directory of the ID-Mapping-Transformed-{{id}}.tsv files (default: {ID_MAPPING_DIR})')
+    parser.add_argument('--network', default=None,
+                        help='network.json (default: <instance-dir>/network.json)')
+    parser.add_argument('--shortest-paths', default=None, dest='shortest_paths',
+                        help='network-shortestpaths.json (default: <instance-dir>/network-shortestpaths.json)')
     args = parser.parse_args()
+
+    # run_instance() e rs_solution_to_open_tasks_via_reader() leggono queste come
+    # globali: rebind qui invece di passarle giu' per la catena di chiamate.
+    INSTANCE_DIR       = args.instance_dir
+    NETWORK_FILE       = args.network        or os.path.join(INSTANCE_DIR, "network.json")
+    SHORTESTPATHS_FILE = args.shortest_paths or os.path.join(INSTANCE_DIR, "network-shortestpaths.json")
+    CREW_SCHEDULE_DIR  = args.crew_schedule_dir
+    CREW_TASK_DIR      = args.crew_task_dir
+    ID_MAPPING_DIR     = args.id_mapping_dir
 
     all_files    = sorted(glob.glob(os.path.join(INSTANCE_DIR, "S*.json")))
     all_ids      = [os.path.basename(f).replace('.json', '') for f in all_files if 'network' not in f]
