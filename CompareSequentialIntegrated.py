@@ -17,7 +17,7 @@ import os
 import time
 from datetime import datetime
 
-from RollingStockGreedy import load_data, scored_greedy, count_canceled
+from RollingStockGreedy import count_canceled
 import SequentialRescheduling as SR
 import IntegratedRescheduling as IR
 from SequentialRescheduling import (
@@ -30,7 +30,9 @@ from IntegratedRescheduling import run_instance as run_integrated
 COMBINED_CSV_COLUMNS = [
     'instance_id', 'seed',
     'seq_rs_canceled', 'seq_crew_uncovered', 'seq_cancel_total', 'int_n_cancel',
-    'seq_rs_time_sec', 'seq_crew_time_sec', 'seq_total_time_sec', 'int_time_sec',
+    'seq_setup_time_sec', 'seq_rs_time_sec', 'seq_crew_prep_time_sec', 'seq_crew_time_sec',
+    'seq_solve_time_sec', 'seq_total_time_sec',
+    'int_setup_time_sec', 'int_solve_time_sec', 'int_metrics_time_sec', 'int_time_sec',
     'seq_crew_dh_km', 'seq_loco_dh_m', 'int_loco_dh_m', 'int_crew_dh_m', 'int_total_dh_m',
     'error_sequential', 'error_integrated',
 ]
@@ -75,23 +77,25 @@ def compute_sequential_loco_dh_m(rs_solution, instance, network, sp) -> float:
 
 
 def run_sequential_with_rs_time(instance_id, seed=42) -> dict:
-    instance_file = os.path.join(INSTANCE_DIR, f"{instance_id}.json")
-    instance, network, sp = load_data(instance_file, NETWORK_FILE, SHORTESTPATHS_FILE)
-
-    t0 = time.time()
-    rs_solution = scored_greedy(instance, network, sp, seed=seed)
-    rs_time_sec = round(time.time() - t0, 3)
-
-    loco_dh_m = compute_sequential_loco_dh_m(rs_solution, instance, network, sp)
-
+    """
+    Sequential con tempi per fase. Il greedy RS gira una volta sola, dentro
+    run_instance: il deadhead locomotive si calcola dopo, sulla soluzione che
+    run_instance restituisce, perche' e' una metrica ex-post e non deve entrare
+    nel tempo di calcolo (nessuna funzione obiettivo lo usa).
+    """
     seq_result = run_sequential(
         instance_id, seed=seed,
         rs_method='scored_greedy',
         method='calculateInitialSolution_deadhead',
     )
 
-    seq_result['rs_time_sec'] = rs_time_sec
-    seq_result['seq_total_time_sec'] = round(rs_time_sec + seq_result['crew_time_sec'], 3)
+    seq_result['seq_total_time_sec'] = round(
+        seq_result['setup_time_sec'] + seq_result['rs_time_sec']
+        + seq_result['crew_prep_time_sec'] + seq_result['crew_time_sec'], 3)
+
+    loco_dh_m = compute_sequential_loco_dh_m(
+        seq_result['_rs_solution'], seq_result['_instance'],
+        seq_result['_network'], seq_result['_sp'])
     seq_result['loco_dh_m'] = round(loco_dh_m, 1)
     return seq_result
 
@@ -100,12 +104,16 @@ def run_integrated_timed(instance_id, seed=42) -> dict:
     t0 = time.time()
     r = run_integrated(instance_id, seed=seed)
     elapsed = round(time.time() - t0, 3)
+    t = r.timings
     return {
         'total_trip': len(r.solution),
         'n_cancel': count_canceled(r.solution),
         'loco_dh_m': r.dh_stats['loco_dh_m'],
         'crew_dh_m': r.dh_stats['crew_dh_m'],
         'total_dh_m': r.dh_stats['loco_dh_m'] + r.dh_stats['crew_dh_m'],
+        'setup_time_sec': t['setup_sec'],
+        'solve_time_sec': t['solve_sec'],
+        'metrics_time_sec': t['metrics_sec'],
         'time_sec': elapsed,
     }
 
@@ -132,8 +140,11 @@ def compare_instance(instance_id, seed=42) -> dict:
             'seq_rs_canceled': seq['rs_canceled'],
             'seq_crew_uncovered': seq['crew_uncovered'],
             'seq_cancel_total': seq['rs_canceled'] + seq['crew_uncovered'],
+            'seq_setup_time_sec': seq['setup_time_sec'],
             'seq_rs_time_sec': seq['rs_time_sec'],
+            'seq_crew_prep_time_sec': seq['crew_prep_time_sec'],
             'seq_crew_time_sec': seq['crew_time_sec'],
+            'seq_solve_time_sec': seq['solve_time_sec'],
             'seq_total_time_sec': seq['seq_total_time_sec'],
             'seq_crew_dh_km': seq['crew_dh_km'],
             'seq_loco_dh_m': seq['loco_dh_m'],
@@ -141,6 +152,9 @@ def compare_instance(instance_id, seed=42) -> dict:
     if integ is not None:
         row.update({
             'int_n_cancel': integ['n_cancel'],
+            'int_setup_time_sec': integ['setup_time_sec'],
+            'int_solve_time_sec': integ['solve_time_sec'],
+            'int_metrics_time_sec': integ['metrics_time_sec'],
             'int_time_sec': integ['time_sec'],
             'int_loco_dh_m': integ['loco_dh_m'],
             'int_crew_dh_m': integ['crew_dh_m'],

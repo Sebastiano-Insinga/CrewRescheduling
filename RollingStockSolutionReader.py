@@ -58,7 +58,7 @@ def readRollingStockSolution(instance, sol_filename, network_data, instance_data
             #filter out all electrification tasks!
             if origin != destination:
                 #this makes sure that if the extractSingleDay_Bool parameter is true, only trips on the respective day of extractedSingleDay_Date will be added to the instance
-                trip_day = datetime.fromtimestamp(arrival).date()
+                trip_day = getDisplayedTimeFormat(2, arrival).date()
                 single_day_contains_trip = True
                 #if the boolean parameter is false, then it will single_day_contains_trip will always be true und therefore not exclude any trips from the instance file
                 if extractSingleDay_Bool == True:
