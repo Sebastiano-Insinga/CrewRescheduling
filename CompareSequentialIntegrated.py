@@ -115,10 +115,11 @@ def run_integrated_timed(instance_id, seed=42) -> dict:
         'solve_time_sec': t['solve_sec'],
         'metrics_time_sec': t['metrics_sec'],
         'time_sec': elapsed,
+        '_result': r,
     }
 
 
-def compare_instance(instance_id, seed=42) -> dict:
+def compare_instance(instance_id, seed=42, export_solution=None) -> dict:
     row = {'instance_id': instance_id, 'seed': seed}
 
     seq = None
@@ -134,6 +135,26 @@ def compare_instance(instance_id, seed=42) -> dict:
             integ = run_integrated_timed(instance_id, seed=seed)
     except Exception as e:
         row['error_integrated'] = str(e)
+
+    # fuori dal redirect_stdout: il messaggio dell'export finirebbe nel buffer
+    # scartato insieme all'output dei due solver
+    if export_solution and integ is not None:
+        from VNS.scripts.VNSExport import export_solution_json
+        r = integ['_result']
+        sol_path = os.path.join(export_solution,
+                                f"{instance_id}_integrated_seed{seed}.json")
+        export_solution_json(r, {
+            'instance_id': instance_id,
+            'method':      'integrated',
+            'seed':        seed,
+            'objective':   r.dh_stats['loco_dh_m'] + r.dh_stats['crew_dh_m'],
+            'n_canceled':  len(r.canceled_tasks),
+            'loco_dh_m':   r.dh_stats['loco_dh_m'],
+            'crew_dh_m':   r.dh_stats['crew_dh_m'],
+            'setup_sec':   r.timings['setup_sec'],
+            'solve_sec':   r.timings['solve_sec'],
+        }, sol_path)
+        print(f"[Solution] → {sol_path}")
 
     if seq is not None:
         row.update({
@@ -189,6 +210,8 @@ if __name__ == '__main__':
                         help=f'Directory of the ID-Mapping-Transformed-{{id}}.tsv files (default: {SR.ID_MAPPING_DIR})')
     parser.add_argument('-o', '--out', dest='out',
                         help='CSV di output (default: comparison_results/sequential_vs_integrated_<timestamp>.csv)')
+    parser.add_argument('--export-solution', metavar='DIR', dest='export_solution',
+                        help='Directory dove salvare la soluzione integrata in formato validatore')
     args = parser.parse_args()
 
     # I tre file della pipeline sono vincolati fra loro: gli id dei task hanno
@@ -234,7 +257,7 @@ if __name__ == '__main__':
     rows = []
     for iid in instance_ids:
         print(f"{iid:<10} running...", flush=True)
-        row = compare_instance(iid, seed=args.s)
+        row = compare_instance(iid, seed=args.s, export_solution=args.export_solution)
         rows.append(row)
         export_to_csv([row], csv_path)
         print(f"{iid:<10} "
