@@ -1,7 +1,14 @@
 
 import argparse
 
+import os
+
+import IntegratedRescheduling as IR
 from IntegratedRescheduling import setup_instance
+
+# Set di validazione: stesse istanze del set di run, con i chilometri dall'ultima
+# manutenzione rivisti su parte delle locomotive.
+VALIDATION_INSTANCE_DIR = os.path.join("Instances", "single_type", "validation", "single_type")
 from validator.Helper import describe
 from validator.Solution import Solution, TRIP, LOCO_DEADHEAD, CREW_DEADHEAD
 from validator.CrewChecks import compute_crew_violations
@@ -122,7 +129,41 @@ def main():
     parser.add_argument("-instance", "-i", type=str, default=None,
                         help="Instance id, e.g. S01. Only needed when run_info "
                              "does not carry instance_id")
+    parser.add_argument("--instance-dir", dest="instance_dir",
+                        default=VALIDATION_INSTANCE_DIR,
+                        help=f"Directory of the S*.json instances "
+                             f"(default: {VALIDATION_INSTANCE_DIR})")
+    # network.json e gli shortest paths NON stanno nel set di validazione, che
+    # contiene solo le istanze: i default vanno presi dal set originale, non da
+    # --instance-dir come altrove nel progetto.
+    parser.add_argument("--network", default=IR.NETWORK_FILE,
+                        help=f"network.json (default: {IR.NETWORK_FILE})")
+    parser.add_argument("--shortest-paths", dest="shortest_paths",
+                        default=IR.SHORTESTPATHS_FILE,
+                        help=f"network-shortestpaths.json (default: {IR.SHORTESTPATHS_FILE})")
+    parser.add_argument("--crew-schedule-dir", dest="crew_schedule_dir",
+                        default=IR.CREW_SCHEDULE_DIR,
+                        help=f"Directory of the Transformed-{{id}}_sol.txt files "
+                             f"(default: {IR.CREW_SCHEDULE_DIR})")
+    parser.add_argument("--crew-task-dir", dest="crew_task_dir",
+                        default=IR.CREW_TASK_DIR,
+                        help=f"Directory of the Transformed-{{id}}.tsv files "
+                             f"(default: {IR.CREW_TASK_DIR})")
+    parser.add_argument("--id-mapping-dir", dest="id_mapping_dir",
+                        default=IR.ID_MAPPING_DIR,
+                        help=f"Directory of the ID-Mapping-Transformed-{{id}}.tsv files "
+                             f"(default: {IR.ID_MAPPING_DIR})")
     args = parser.parse_args()
+
+    # setup_instance rilegge queste globali dal proprio modulo: riassegnare il
+    # nome importato qui sopra non basterebbe, "from ... import" ne crea una
+    # copia locale scollegata dal modulo di origine.
+    IR.INSTANCE_DIR       = args.instance_dir
+    IR.NETWORK_FILE       = args.network
+    IR.SHORTESTPATHS_FILE = args.shortest_paths
+    IR.CREW_SCHEDULE_DIR  = args.crew_schedule_dir
+    IR.CREW_TASK_DIR      = args.crew_task_dir
+    IR.ID_MAPPING_DIR     = args.id_mapping_dir
 
     sol = Solution()
     sol.from_file(args.solution)

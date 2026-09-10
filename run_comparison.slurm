@@ -98,4 +98,5 @@ $PY CompareSequentialIntegrated.py -i $ID -s $SEED \
     --crew-schedule-dir "$CREW_SCHEDULE_DIR" \
     --crew-task-dir "$CREW_TASK_DIR" \
     --id-mapping-dir "$ID_MAPPING_DIR" \
-    -o $RUNDIR/csv/$ID.csv
+    -o $RUNDIR/csv/$ID.csv \
+    --export-solution $RUNDIR/solutions

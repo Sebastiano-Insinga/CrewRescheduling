@@ -4,6 +4,7 @@ import csv
 import glob
 import math
 import os
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from TimeFormat import instance_datetime
@@ -42,6 +43,7 @@ class SolveResult:
     all_candidates:  dict
     dh_stats:        dict
     forced_failures: list
+    timings:         dict = None
 
 
 
@@ -557,7 +559,9 @@ def setup_instance(instance_id: str) -> tuple:
 
     mapper = DriverStatusMapper(crew_schedule_file, crew_task_file,
                                 id_mapping_file, instance_file)
-    export_status_driver(mapper)
+    # export_status_driver(mapper) era qui: nessuno legge il TSV prodotto, e
+    # setup_instance viene chiamata anche dal validatore e dal VNS, che si
+    # ritrovavano a riscrivere il file a ogni run. Chiamarla a mano se serve.
     return instance, mapper, net, disruption_start, disruption_end
 
 
@@ -568,9 +572,14 @@ def solve_instance(instance, mapper, net, disruption_start, disruption_end,
 
     rescheduler = IntegratedRescheduler(checker_loco, checker_crew, mapper, net)
 
+    # Solo l'algoritmo entra nel tempo di calcolo: i deadhead sono metriche
+    # ex-post, non rientrano in nessuna funzione obiettivo.
+    _t0 = time.time()
     solution, existing_duties, duty_breaks, loco_duties, canceled_tasks, all_candidates, forced_failures = rescheduler.run(
         seed=seed, forced=forced)
-    
+    solve_sec = round(time.time() - _t0, 3)
+
+    _t0 = time.time()
     check_deadhead(canceled_tasks, existing_duties, net)
 
     no_slot = [d for d, s in duty_breaks.items() if s is None]
@@ -596,6 +605,8 @@ def solve_instance(instance, mapper, net, disruption_start, disruption_end,
                 crew_dh_m += net.sp_raw.get(str(cur), {}).get(str(task['origin']), {}).get('weight', 0)
             cur = task['destination']
 
+    metrics_sec = round(time.time() - _t0, 3)
+
     return SolveResult(
         solution=        solution,
         existing_duties= existing_duties,
@@ -609,13 +620,18 @@ def solve_instance(instance, mapper, net, disruption_start, disruption_end,
             'disruption_start_min': disruption_start,
             'disruption_end_min':   disruption_end,
         },
-        forced_failures = forced_failures
+        forced_failures = forced_failures,
+        timings={'solve_sec': solve_sec, 'metrics_sec': metrics_sec},
     )
 
 
 def run_instance(instance_id: str, seed: int = 42):
+    _t0 = time.time()
     instance, mapper, net, disruption_start, disruption_end = setup_instance(instance_id)
-    return solve_instance(instance, mapper, net, disruption_start, disruption_end, seed)
+    setup_sec = round(time.time() - _t0, 3)
+    r = solve_instance(instance, mapper, net, disruption_start, disruption_end, seed)
+    r.timings['setup_sec'] = setup_sec
+    return r
        
 
 
@@ -659,6 +675,11 @@ if __name__ == '__main__':
                         help='Gantt: one row per canceled trip instead of packed CANC-n rows')
     parser.add_argument('--excel', metavar='FILE.xlsx',
                         help='Visualize an external Excel solution (skips model run)')
+    parser.add_argument('--export-solution', metavar='DIR', dest='export_solution',
+                        help='Directory dove salvare la soluzione in formato validatore')
+    parser.add_argument('--gantt', action='store_true',
+                        help='Genera il Gantt loco/crew in IntegratedRescheduling/visualize '
+                             '(solo con una sola istanza)')
     args = parser.parse_args()
 
     ts = _dt.now().strftime('%Y%m%d_%H%M%S')
@@ -705,9 +726,30 @@ if __name__ == '__main__':
             all_results.append({'instance_id': iid, 'error': str(e)})
             print(f"{iid}  ERROR: {e}")
             continue
-        
-        # Gantt only in single-instance mode
-        if len(instance_ids) == 1:
+
+        if args.export_solution:
+            # import qui e non in testa al modulo: senza il flag non serve
+            # tirarsi dentro VNS/scripts e validator
+            from VNS.scripts.VNSExport import export_solution_json
+            sol_path = os.path.join(args.export_solution,
+                                    f"{iid}_integrated_seed{args.seed}.json")
+            export_solution_json(r, {
+                'instance_id': iid,
+                'method':      'integrated',
+                'seed':        args.seed,
+                'objective':   r.dh_stats['loco_dh_m'] + r.dh_stats['crew_dh_m'],
+                'n_canceled':  len(r.canceled_tasks),
+                'loco_dh_m':   r.dh_stats['loco_dh_m'],
+                'crew_dh_m':   r.dh_stats['crew_dh_m'],
+                'setup_sec':   r.timings['setup_sec'],
+                'solve_sec':   r.timings['solve_sec'],
+            }, sol_path)
+            print(f"[Solution] → {sol_path}")
+
+        # Gantt su richiesta e solo in single-instance mode: un HTML per run su
+        # istanza grande pesa svariati MB, e generarlo di default riempie
+        # IntegratedRescheduling/visualize senza che nessuno l'abbia chiesto.
+        if args.gantt and len(instance_ids) == 1:
             from LocoCrewViz import plot_loco_crew_gantt
             metrics = {
                 'total_trips':          len(r.solution),
