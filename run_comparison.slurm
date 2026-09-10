@@ -93,10 +93,26 @@ node     : $SLURMD_NODENAME
 started  : $(date -Is)
 EOF
 
-$PY CompareSequentialIntegrated.py -i $ID -s $SEED \
+# -u: senza, lo stdout verso un file e' bufferizzato a blocchi e il log resta
+# vuoto per minuti anche mentre il job avanza.
+$PY -u CompareSequentialIntegrated.py -i $ID -s $SEED \
     --instance-dir "$INSTANCE_DIR" \
     --crew-schedule-dir "$CREW_SCHEDULE_DIR" \
     --crew-task-dir "$CREW_TASK_DIR" \
     --id-mapping-dir "$ID_MAPPING_DIR" \
     -o $RUNDIR/csv/$ID.csv \
     --export-solution $RUNDIR/solutions
+
+# CompareSequentialIntegrated cattura le eccezioni dei due solver e le scrive in
+# colonna invece di propagarle: senza questo controllo il task risulta OK anche
+# con l'approccio integrato fallito, e la batch va avanti per ore producendo
+# righe a meta'. Qui il task fallisce, cosi' squeue e sacct lo mostrano subito.
+$PY -c "
+import csv, sys
+rows = list(csv.DictReader(open('$RUNDIR/csv/$ID.csv')))
+bad  = [r for r in rows if r['error_sequential'] or r['error_integrated']]
+for r in bad:
+    print(f\"ERRORE {r['instance_id']}: seq={r['error_sequential']!r} int={r['error_integrated']!r}\",
+          file=sys.stderr)
+sys.exit(1 if bad else 0)
+"
