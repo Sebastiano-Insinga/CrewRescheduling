@@ -3,7 +3,9 @@ import glob
 import os
 import time
 from datetime import datetime as _dt
-from IntegratedRescheduling import setup_instance, solve_instance, IntegratedRescheduler, INSTANCE_DIR
+import IntegratedRescheduling as IR
+from IntegratedRescheduling import setup_instance, solve_instance, IntegratedRescheduler
+import RunConfig
 from SolutionEvaluator import SolutionEvaluator
 from LocoCrewViz import plot_loco_crew_gantt
 from VNS.scripts.SwapStrategies import SwapStrategies, SHAKE_STRATEGIES
@@ -213,7 +215,16 @@ if __name__ == '__main__':
                          help="Skip the Gantt HTML export. Thought for batch runs (e.g. one "
                               "SLURM array task per instance), where every task counts as "
                               "single-instance and would write a multi-MB plotly file nobody opens")
+    RunConfig.add_path_args(parser)
     args = parser.parse_args()
+
+    # setup_instance() legge i path dalle globali di IntegratedRescheduling,
+    # quindi vanno impostate li'. Nota il IR.INSTANCE_DIR piu' sotto: un
+    # "from IntegratedRescheduling import INSTANCE_DIR" ne fotograferebbe il
+    # valore all'import, cioe' None, e apply_to() non potrebbe raggiungerlo.
+    run_paths = RunConfig.resolve(args, parser)
+    run_paths.apply_to(IR)
+    print(f"[RunConfig] chain={run_paths.chain_name} instances={run_paths.instance_dir}")
 
     if args.csv:
         csv_path = args.csv
@@ -226,9 +237,13 @@ if __name__ == '__main__':
     if args.instance:
         instance_ids = args.instance
     else:
-        all_files    = sorted(glob.glob(os.path.join(INSTANCE_DIR, "S*.json")))
+        all_files    = sorted(glob.glob(os.path.join(IR.INSTANCE_DIR, "S*.json")))
         instance_ids = [os.path.basename(f).replace('.json', '') for f in all_files
                         if 'network' not in f]
+
+    _problems = RunConfig.validate_chain(run_paths, instance_ids)
+    if _problems:
+        parser.error("catena crew incoerente:\n  " + "\n  ".join(_problems))
 
     # Gantt only in single-instance mode, as in IntegratedRescheduling.py; --no-gantt
     # spegne l'export anche li', per le batch dove ogni task e' single-instance
@@ -284,6 +299,9 @@ if __name__ == '__main__':
                     'max_no_improve': args.max_no_improve if args.loop else None,
                     'objective':      round(obj.total, 2) if obj else None,
                     'solve_time':     round(vns.solve_time, 2),
+                    # Stessa logica dei parametri del loop, applicata ai path:
+                    # una soluzione deve dire da quali directory e' nata.
+                    **run_paths.as_run_info(),
                     'forced':         vns.current_forced,
                 }, sol_path)
                 print(f"[Solution] → {sol_path}")

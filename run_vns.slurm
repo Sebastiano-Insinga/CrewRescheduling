@@ -5,14 +5,20 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=16GB
 #SBATCH --time=06:00:00
-#SBATCH --array=1-18
+#SBATCH --array=1-20
 #SBATCH --output=logs/vns_%A_%a.log
 
 # Uso:
-#   sbatch run_vns.slurm [SHAKE] [KMAX] [RUNTAG]
-# SHAKE : ordered | random          (default: random)
-# KMAX  : ampiezza max del vicinato (default: 10)
-# RUNTAG: nome della batch sotto VNS/runs/ (default: id del job array)
+#   sbatch run_vns.slurm [SHAKE] [KMAX] [RUNTAG] [CHAIN] [INSTANCE_DIR]
+# SHAKE       : ordered | random          (default: random)
+# KMAX        : ampiezza max del vicinato (default: 10)
+# RUNTAG      : nome della batch sotto VNS/runs/ (default: id del job array)
+# CHAIN       : catena crew, cartella con chain.json (default: java/results0709)
+# INSTANCE_DIR: istanze (default: Instances/single_type/validation/single_type)
+#
+# L'array e' 1-20 perche' la catena results0709 copre S01-S20. Il set storico in
+# results_twan_txt/ si fermava a S18 e ha schedule diversi da S10 in poi: non va
+# mescolato con questo, i risultati non sono confrontabili.
 #
 # --time e' per task: ogni istanza ha le sue 6h indipendenti, non 6h per
 # l'array intero. Margine sulla peggiore storica (S15, 3h48 con k piu' bassi).
@@ -52,18 +58,28 @@ EOF
 SHAKE=${1:-random}
 KMAX=${2:-10}
 RUNTAG=${3:-$SLURM_ARRAY_JOB_ID}
+CHAIN=${4:-java/results0709}
+INSTANCE_DIR=${5:-Instances/single_type/validation/single_type}
 ID=$(printf "S%02d" $SLURM_ARRAY_TASK_ID)
 
-INSTANCE=$REPO/Instances/single_type/$ID.json
+INSTANCE=$REPO/$INSTANCE_DIR/$ID.json
 if [ ! -f "$INSTANCE" ]; then
     echo "ERRORE: istanza non trovata: $INSTANCE" >&2
     exit 1
 fi
 
-# Il VNS gira sul set storico in results_twan_txt/, che arriva a S18: per questo
-# l'array e' 1-18 e non 1-20. Il controllo serve comunque, perche' l'istanza
-# JSON esiste anche per S19 e S20 e da sola non basta a far partire la catena.
-CREW_SCHEDULE=$REPO/results_twan_txt/Transformed-${ID}_sol.txt
+# La catena dichiara le proprie tre directory in chain.json, relative a se'.
+# Qui si controlla solo che esista e che copra questa istanza: la verifica di
+# coerenza vera, che lo schedule non citi task assenti dal mapping, la fa
+# RunConfig.validate_chain all'avvio del processo Python.
+if [ ! -f "$REPO/$CHAIN/chain.json" ]; then
+    echo "ERRORE: $CHAIN non e' una catena crew, manca chain.json" >&2
+    exit 1
+fi
+# La sottodirectory dello schedule la dichiara il manifest, non questo script:
+# scriverla qui la duplicherebbe, ed e' esattamente il tipo di copia che finisce
+# per divergere.
+CREW_SCHEDULE=$REPO/$CHAIN/$($PY -c "import json;print(json.load(open('$REPO/$CHAIN/chain.json'))['crew_schedule'])")/Transformed-${ID}_sol.txt
 if [ ! -f "$CREW_SCHEDULE" ]; then
     echo "ERRORE: crew schedule mancante: $CREW_SCHEDULE" >&2
     exit 1
@@ -85,6 +101,8 @@ cat > $RUNDIR/csv/${ID}_run_info.txt <<EOF
 instance : $ID
 shake    : $SHAKE
 k_max    : $KMAX
+chain    : $CHAIN
+instances: $INSTANCE_DIR
 commit   : $COMMIT
 job      : $SLURM_ARRAY_JOB_ID / task $SLURM_ARRAY_TASK_ID
 node     : $SLURMD_NODENAME
@@ -93,7 +111,10 @@ EOF
 
 # --no-gantt: ogni task dell'array e' single-instance, quindi senza il flag
 # scriverebbe un HTML plotly da diversi MB che sul cluster non apre nessuno.
-$PY VNSRescheduler.py -i $ID -loop \
+# --chain e --instance-dir non hanno default nel codice: senza, il processo
+# esce subito invece di ripiegare su directory arbitrarie.
+$PY -u VNSRescheduler.py -i $ID -loop \
+    --chain "$CHAIN" --instance-dir "$INSTANCE_DIR" \
     --shake $SHAKE -k-max $KMAX --no-gantt \
     --export-solution $RUNDIR/solutions \
     -csv $RUNDIR/csv/$ID.csv

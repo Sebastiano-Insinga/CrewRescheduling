@@ -14,16 +14,17 @@ import csv
 import glob
 import io
 import os
+import sys
 import time
 from datetime import datetime
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from RollingStockGreedy import count_canceled
 import SequentialRescheduling as SR
 import IntegratedRescheduling as IR
-from SequentialRescheduling import (
-    run_instance as run_sequential,
-    INSTANCE_DIR, NETWORK_FILE, SHORTESTPATHS_FILE,
-)
+import RunConfig
+from SequentialRescheduling import run_instance as run_sequential
 from IntegratedRescheduling import run_instance as run_integrated
 
 
@@ -35,6 +36,8 @@ COMBINED_CSV_COLUMNS = [
     'int_setup_time_sec', 'int_solve_time_sec', 'int_metrics_time_sec', 'int_time_sec',
     'seq_crew_dh_km', 'seq_loco_dh_m', 'int_loco_dh_m', 'int_crew_dh_m', 'int_total_dh_m',
     'error_sequential', 'error_integrated',
+    # Provenienza: da quali directory e' nata la riga.
+    'chain', 'instance_dir', 'crew_schedule_dir', 'crew_task_dir', 'id_mapping_dir',
 ]
 
 
@@ -200,39 +203,26 @@ if __name__ == '__main__':
     parser.add_argument('-i', nargs='+', metavar='S01',
                          help='Instance IDs to run (default: all S*.json in single_type/)')
     parser.add_argument('-s', type=int, default=42)
-    parser.add_argument('--instance-dir', default=INSTANCE_DIR, dest='instance_dir',
-                        help=f'Directory of the S*.json instances (default: {INSTANCE_DIR})')
-    parser.add_argument('--crew-schedule-dir', default=SR.CREW_SCHEDULE_DIR, dest='crew_schedule_dir',
-                        help=f'Directory of the Transformed-{{id}}_sol.txt files (default: {SR.CREW_SCHEDULE_DIR})')
-    parser.add_argument('--crew-task-dir', default=SR.CREW_TASK_DIR, dest='crew_task_dir',
-                        help=f'Directory of the Transformed-{{id}}.tsv files (default: {SR.CREW_TASK_DIR})')
-    parser.add_argument('--id-mapping-dir', default=SR.ID_MAPPING_DIR, dest='id_mapping_dir',
-                        help=f'Directory of the ID-Mapping-Transformed-{{id}}.tsv files (default: {SR.ID_MAPPING_DIR})')
     parser.add_argument('-o', '--out', dest='out',
                         help='CSV di output (default: comparison_results/sequential_vs_integrated_<timestamp>.csv)')
     parser.add_argument('--export-solution', metavar='DIR', dest='export_solution',
                         help='Directory dove salvare la soluzione integrata in formato validatore')
+    RunConfig.add_path_args(parser)
     args = parser.parse_args()
 
     # I tre file della pipeline sono vincolati fra loro: gli id dei task hanno
     # senso solo dentro la conversione che li ha prodotti. Mescolare directory
-    # di run diverse non da' errore, da' risultati sbagliati in silenzio.
+    # di run diverse non da' errore, da' risultati sbagliati in silenzio: per
+    # questo si passa --chain, che le prende tutte e tre dallo stesso manifest.
     #
     # run_instance rilegge queste globali dal proprio modulo (SequentialRescheduling
-    # righe 152-154, IntegratedRescheduling righe 543-545), quindi vanno impostate
-    # li'. Riassegnare i nomi importati qui sopra non basterebbe: "from ... import"
-    # ne crea copie locali, scollegate dal modulo di origine.
-    INSTANCE_DIR = args.instance_dir
-    NETWORK_FILE = os.path.join(INSTANCE_DIR, "network.json")
-    SHORTESTPATHS_FILE = os.path.join(INSTANCE_DIR, "network-shortestpaths.json")
-
-    for mod in (SR, IR):
-        mod.INSTANCE_DIR = INSTANCE_DIR
-        mod.NETWORK_FILE = NETWORK_FILE
-        mod.SHORTESTPATHS_FILE = SHORTESTPATHS_FILE
-        mod.CREW_SCHEDULE_DIR = args.crew_schedule_dir
-        mod.CREW_TASK_DIR = args.crew_task_dir
-        mod.ID_MAPPING_DIR = args.id_mapping_dir
+    # e IntegratedRescheduling), quindi vanno impostate li'. Riassegnare i nomi
+    # importati in testa non basterebbe: "from ... import" ne crea copie locali,
+    # scollegate dal modulo di origine.
+    run_paths = RunConfig.resolve(args, parser)
+    run_paths.apply_to(SR, IR)
+    INSTANCE_DIR = run_paths.instance_dir
+    print(f"[RunConfig] chain={run_paths.chain_name} instances={run_paths.instance_dir}")
 
     if args.i:
         instance_ids = args.i
@@ -242,6 +232,10 @@ if __name__ == '__main__':
             os.path.basename(f).replace('.json', '')
             for f in all_files if 'network' not in f
         ]
+
+    _problems = RunConfig.validate_chain(run_paths, instance_ids)
+    if _problems:
+        parser.error("catena crew incoerente:\n  " + "\n  ".join(_problems))
 
     if args.out:
         csv_path = args.out
@@ -258,6 +252,7 @@ if __name__ == '__main__':
     for iid in instance_ids:
         print(f"{iid:<10} running...", flush=True)
         row = compare_instance(iid, seed=args.s, export_solution=args.export_solution)
+        row.update(run_paths.as_run_info())
         rows.append(row)
         export_to_csv([row], csv_path)
         print(f"{iid:<10} "
