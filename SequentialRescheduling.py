@@ -22,18 +22,19 @@ from IDMappingReader import readIDMapping
 from TimeFormat import instance_datetime
 from VNS_Rescheduling import calculateInitialSolution, calculateInitialSolution_slack, calculateInitialSolutionBreak, calculateInitialSolution_driverMRV, calculateInitialSolution_taskScarcity, calculateInitialSolution_connectivity, calculateInitialSolution_deadhead, run_VNS
 
-# Default per una run in locale. Sovrascrivibili da CLI (vedi __main__): una
-# run su una conversione diversa (es. un'altra batch di column generation) deve
-# poter puntare alle sue directory senza toccare quelle di default.
-# CREW_SCHEDULE_DIR e CREW_TASK_DIR vanno tenuti in coppia: i _sol.txt
-# contengono solo id di task, che hanno senso solo rispetto al .tsv da cui sono
-# stati generati da convert_csv_to_twan_format.py.
-INSTANCE_DIR       = "Instances/single_type"
-NETWORK_FILE       = os.path.join(INSTANCE_DIR, "network.json")
-SHORTESTPATHS_FILE = os.path.join(INSTANCE_DIR, "network-shortestpaths.json")
-CREW_SCHEDULE_DIR  = "results_twan_txt"
-CREW_TASK_DIR      = "Final_Rescheduled_Instances"
-ID_MAPPING_DIR     = "Final_Rescheduled_ID_Mappings"
+import RunConfig
+
+# Nessun default: i percorsi arrivano dalla riga di comando, via RunConfig
+# (vedi __main__). CREW_SCHEDULE_DIR e CREW_TASK_DIR vanno tenuti in coppia,
+# perche' i _sol.txt contengono solo id di task, che hanno senso rispetto al
+# .tsv da cui sono stati generati: e' il motivo per cui si passa --chain, che
+# li prende entrambi dallo stesso manifest invece di lasciarli scegliere a mano.
+INSTANCE_DIR       = None
+NETWORK_FILE       = None
+SHORTESTPATHS_FILE = None
+CREW_SCHEDULE_DIR  = None
+CREW_TASK_DIR      = None
+ID_MAPPING_DIR     = None
 OUTPUT_RS_DIR      = "output/rs_solution"
 OUTPUT_CREW_DIR    = "output/crew_solution"
 
@@ -336,19 +337,23 @@ def run_instance(instance_id, seed=42, rs_method='randomized_greedy', method='ca
 CSV_COLUMNS = ['instance_id', 'rs_method', 'crew_method', 'rs_trips_total', 'rs_covered',
                'rs_canceled', 'id_mapping_entries', 'crew_duties', 'crew_uncovered', 'crew_dh_km',
                'crew_time_sec', 'vns_method', 'vns_uncovered', 'vns_deadheading', 'vns_breaks_violated',
-               'vns_time_sec']
+               'vns_time_sec',
+               # Provenienza: da quali directory e' nata la riga. Senza queste
+               # colonne un risultato vecchio non e' distinguibile da uno nuovo.
+               'chain', 'instance_dir', 'crew_schedule_dir', 'crew_task_dir', 'id_mapping_dir']
 
 
-def export_to_csv(results, output_path):
+def export_to_csv(results, output_path, run_paths=None):
     os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
     file_exists = os.path.isfile(output_path)
+    provenance = run_paths.as_run_info() if run_paths is not None else {}
     with open(output_path, 'a', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS, extrasaction='ignore')
         if not file_exists:
             writer.writeheader()
         for r in results:
             if 'error' not in r:
-                writer.writerow(r)
+                writer.writerow({**r, **provenance})
     print(f"[CSV] appended {len([r for r in results if 'error' not in r])} rows → {output_path}")
 
 
@@ -376,32 +381,24 @@ if __name__ == '__main__':
                         help='VNS random seed multiplier (default: 1)')
     parser.add_argument('--task-source', choices=['reader', 'inline'], default='reader', dest='task_source',
                         help='Task generation method (default: reader)')
-    parser.add_argument('--instance-dir', default=INSTANCE_DIR, dest='instance_dir',
-                        help=f'Directory of the S*.json instances (default: {INSTANCE_DIR})')
-    parser.add_argument('--crew-schedule-dir', default=CREW_SCHEDULE_DIR, dest='crew_schedule_dir',
-                        help=f'Directory of the Transformed-{{id}}_sol.txt files (default: {CREW_SCHEDULE_DIR})')
-    parser.add_argument('--crew-task-dir', default=CREW_TASK_DIR, dest='crew_task_dir',
-                        help=f'Directory of the Transformed-{{id}}.tsv files (default: {CREW_TASK_DIR})')
-    parser.add_argument('--id-mapping-dir', default=ID_MAPPING_DIR, dest='id_mapping_dir',
-                        help=f'Directory of the ID-Mapping-Transformed-{{id}}.tsv files (default: {ID_MAPPING_DIR})')
-    parser.add_argument('--network', default=None,
-                        help='network.json (default: <instance-dir>/network.json)')
-    parser.add_argument('--shortest-paths', default=None, dest='shortest_paths',
-                        help='network-shortestpaths.json (default: <instance-dir>/network-shortestpaths.json)')
+    RunConfig.add_path_args(parser)
     args = parser.parse_args()
 
     # run_instance() e rs_solution_to_open_tasks_via_reader() leggono queste come
-    # globali: rebind qui invece di passarle giu' per la catena di chiamate.
-    INSTANCE_DIR       = args.instance_dir
-    NETWORK_FILE       = args.network        or os.path.join(INSTANCE_DIR, "network.json")
-    SHORTESTPATHS_FILE = args.shortest_paths or os.path.join(INSTANCE_DIR, "network-shortestpaths.json")
-    CREW_SCHEDULE_DIR  = args.crew_schedule_dir
-    CREW_TASK_DIR      = args.crew_task_dir
-    ID_MAPPING_DIR     = args.id_mapping_dir
+    # globali del modulo: apply_to() le ribinda qui invece di passarle giu' per
+    # la catena di chiamate.
+    import sys as _sys
+    run_paths = RunConfig.resolve(args, parser)
+    run_paths.apply_to(_sys.modules[__name__])
+    print(f"[RunConfig] chain={run_paths.chain_name} instances={run_paths.instance_dir}")
 
     all_files    = sorted(glob.glob(os.path.join(INSTANCE_DIR, "S*.json")))
     all_ids      = [os.path.basename(f).replace('.json', '') for f in all_files if 'network' not in f]
     instance_ids = args.instances if args.instances else all_ids
+
+    _problems = RunConfig.validate_chain(run_paths, instance_ids)
+    if _problems:
+        parser.error("catena crew incoerente:\n  " + "\n  ".join(_problems))
 
     SEED = args.seed
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -426,4 +423,4 @@ if __name__ == '__main__':
                 except Exception as e:
                     all_results.append({'instance_id': iid, 'rs_method': rs_method, 'crew_method': crew_method, 'error': str(e)})
                     print(f"{iid:<10}  ERROR: {e}")
-    export_to_csv(all_results, csv_path)
+    export_to_csv(all_results, csv_path, run_paths)

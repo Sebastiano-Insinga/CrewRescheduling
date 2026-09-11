@@ -53,25 +53,26 @@ EOF
 
 RUNTAG=${1:-$SLURM_ARRAY_JOB_ID}
 SEED=${2:-42}
-PIPELINE=${3:-java/results0709}
+CHAIN=${3:-java/results0709}
+INSTANCE_DIR=${4:-Instances/single_type/validation/single_type}
 ID=$(printf "S%02d" $SLURM_ARRAY_TASK_ID)
-
-INSTANCE_DIR=Instances/single_type
-CREW_SCHEDULE_DIR=$PIPELINE/results_twan_txt
-CREW_TASK_DIR=$PIPELINE/mapping/Final_Rescheduled_Instances
-ID_MAPPING_DIR=$PIPELINE/mapping/Final_Rescheduled_ID_Mappings
 
 cd $REPO
 
 # I tre file della pipeline sono vincolati fra loro: gli id dei task valgono
-# solo dentro la conversione che li ha prodotti. Un percorso sbagliato non
-# solleva errori, produce numeri sbagliati (vedi java/PIPELINE.md).
-for f in "$INSTANCE_DIR/$ID.json" \
-         "$CREW_SCHEDULE_DIR/Transformed-${ID}_sol.txt" \
-         "$CREW_TASK_DIR/Transformed-${ID}.tsv" \
-         "$ID_MAPPING_DIR/ID-Mapping-Transformed-${ID}.tsv"; do
-    [ -f "$f" ] || { echo "ERRORE: file mancante: $f" >&2; exit 1; }
-done
+# solo dentro la conversione che li ha prodotti, e un percorso sbagliato non
+# solleva errori, produce numeri sbagliati (vedi java/PIPELINE.md). Per questo
+# non si passano piu' tre directory separate ma --chain: le tre sottodirectory
+# le dichiara chain.json, quindi non si possono piu' incrociare per sbaglio.
+if [ ! -f "$CHAIN/chain.json" ]; then
+    echo "ERRORE: $CHAIN non e' una catena crew, manca chain.json" >&2
+    exit 1
+fi
+[ -f "$INSTANCE_DIR/$ID.json" ] || {
+    echo "ERRORE: istanza mancante: $INSTANCE_DIR/$ID.json" >&2; exit 1; }
+
+# La verifica di coerenza vera, che lo schedule non citi task assenti dal
+# mapping, la fa RunConfig.validate_chain all'avvio del processo Python.
 
 # Un CSV per task: export_to_csv apre in append, e 20 task sullo stesso file
 # interlacciano le righe e riscrivono l'header. Il merge si fa a fine batch:
@@ -86,7 +87,8 @@ COMMIT=$(git -C "$REPO" rev-parse --short HEAD 2>/dev/null || echo sconosciuto)
 cat > $RUNDIR/csv/${ID}_run_info.txt <<EOF
 instance : $ID
 seed     : $SEED
-pipeline : $PIPELINE
+chain    : $CHAIN
+instances: $INSTANCE_DIR
 commit   : $COMMIT
 job      : $SLURM_ARRAY_JOB_ID / task $SLURM_ARRAY_TASK_ID
 node     : $SLURMD_NODENAME
@@ -95,11 +97,9 @@ EOF
 
 # -u: senza, lo stdout verso un file e' bufferizzato a blocchi e il log resta
 # vuoto per minuti anche mentre il job avanza.
-$PY -u CompareSequentialIntegrated.py -i $ID -s $SEED \
+$PY -u Comparison_Integrated_Sequential/scripts/CompareSequentialIntegrated.py -i $ID -s $SEED \
+    --chain "$CHAIN" \
     --instance-dir "$INSTANCE_DIR" \
-    --crew-schedule-dir "$CREW_SCHEDULE_DIR" \
-    --crew-task-dir "$CREW_TASK_DIR" \
-    --id-mapping-dir "$ID_MAPPING_DIR" \
     -o $RUNDIR/csv/$ID.csv \
     --export-solution $RUNDIR/solutions
 

@@ -4,11 +4,8 @@ import argparse
 import os
 
 import IntegratedRescheduling as IR
+import RunConfig
 from IntegratedRescheduling import setup_instance
-
-# Set di validazione: stesse istanze del set di run, con i chilometri dall'ultima
-# manutenzione rivisti su parte delle locomotive.
-VALIDATION_INSTANCE_DIR = os.path.join("Instances", "single_type", "validation", "single_type")
 from validator.Helper import describe
 from validator.Solution import Solution, TRIP, LOCO_DEADHEAD, CREW_DEADHEAD
 from validator.CrewChecks import compute_crew_violations
@@ -129,41 +126,8 @@ def main():
     parser.add_argument("-instance", "-i", type=str, default=None,
                         help="Instance id, e.g. S01. Only needed when run_info "
                              "does not carry instance_id")
-    parser.add_argument("--instance-dir", dest="instance_dir",
-                        default=VALIDATION_INSTANCE_DIR,
-                        help=f"Directory of the S*.json instances "
-                             f"(default: {VALIDATION_INSTANCE_DIR})")
-    # network.json e gli shortest paths NON stanno nel set di validazione, che
-    # contiene solo le istanze: i default vanno presi dal set originale, non da
-    # --instance-dir come altrove nel progetto.
-    parser.add_argument("--network", default=IR.NETWORK_FILE,
-                        help=f"network.json (default: {IR.NETWORK_FILE})")
-    parser.add_argument("--shortest-paths", dest="shortest_paths",
-                        default=IR.SHORTESTPATHS_FILE,
-                        help=f"network-shortestpaths.json (default: {IR.SHORTESTPATHS_FILE})")
-    parser.add_argument("--crew-schedule-dir", dest="crew_schedule_dir",
-                        default=IR.CREW_SCHEDULE_DIR,
-                        help=f"Directory of the Transformed-{{id}}_sol.txt files "
-                             f"(default: {IR.CREW_SCHEDULE_DIR})")
-    parser.add_argument("--crew-task-dir", dest="crew_task_dir",
-                        default=IR.CREW_TASK_DIR,
-                        help=f"Directory of the Transformed-{{id}}.tsv files "
-                             f"(default: {IR.CREW_TASK_DIR})")
-    parser.add_argument("--id-mapping-dir", dest="id_mapping_dir",
-                        default=IR.ID_MAPPING_DIR,
-                        help=f"Directory of the ID-Mapping-Transformed-{{id}}.tsv files "
-                             f"(default: {IR.ID_MAPPING_DIR})")
+    RunConfig.add_path_args(parser)
     args = parser.parse_args()
-
-    # setup_instance rilegge queste globali dal proprio modulo: riassegnare il
-    # nome importato qui sopra non basterebbe, "from ... import" ne crea una
-    # copia locale scollegata dal modulo di origine.
-    IR.INSTANCE_DIR       = args.instance_dir
-    IR.NETWORK_FILE       = args.network
-    IR.SHORTESTPATHS_FILE = args.shortest_paths
-    IR.CREW_SCHEDULE_DIR  = args.crew_schedule_dir
-    IR.CREW_TASK_DIR      = args.crew_task_dir
-    IR.ID_MAPPING_DIR     = args.id_mapping_dir
 
     sol = Solution()
     sol.from_file(args.solution)
@@ -171,6 +135,29 @@ def main():
     instance_id = args.instance or sol.run_info.get('instance_id')
     if instance_id is None:
         parser.error(f"no instance_id in {args.solution}, pass it with -i")
+
+    # Una soluzione prodotta dopo l'introduzione di RunConfig porta con se' le
+    # directory da cui e' nata: validarla contro altre directory confronta due
+    # cose diverse senza dirlo. Se il run_info le ha e la CLI tace, si usano
+    # quelle; se la CLI le passa e divergono, lo si segnala.
+    recorded = {k: sol.run_info.get(k) for k in
+                ('instance_dir', 'crew_schedule_dir', 'crew_task_dir', 'id_mapping_dir')}
+    for attr, value in recorded.items():
+        if value and getattr(args, attr, None) is None and not args.chain:
+            setattr(args, attr, value)
+    if recorded.get('instance_dir') and args.instance_dir != recorded['instance_dir']:
+        print(f"[attenzione] la soluzione dice instance_dir={recorded['instance_dir']!r}, "
+              f"la stai validando con {args.instance_dir!r}")
+
+    # setup_instance rilegge queste globali dal proprio modulo: riassegnare il
+    # nome importato qui sopra non basterebbe, "from ... import" ne crea una
+    # copia locale scollegata dal modulo di origine.
+    run_paths = RunConfig.resolve(args, parser)
+    run_paths.apply_to(IR)
+
+    problems = RunConfig.validate_chain(run_paths, [instance_id])
+    if problems:
+        parser.error("catena crew incoerente:\n  " + "\n  ".join(problems))
 
     instance, mapper, net, dis_start, dis_end = setup_instance(instance_id)
 

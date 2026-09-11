@@ -20,12 +20,23 @@ from CrewState import CrewState
 from DebugExport import (export_task_list, export_feasible_drivers,
                           export_loco_driver_selection, export_loco_sequence)
 
-INSTANCE_DIR       = os.path.join("Instances", "single_type")
-NETWORK_FILE       = os.path.join(INSTANCE_DIR, "network.json")
-SHORTESTPATHS_FILE = os.path.join(INSTANCE_DIR, "network-shortestpaths.json")
-CREW_SCHEDULE_DIR  = "results_twan_txt"
-CREW_TASK_DIR      = "Final_Rescheduled_Instances"
-ID_MAPPING_DIR     = "Final_Rescheduled_ID_Mappings"
+import RunConfig
+
+# Nessun default: i percorsi arrivano dalla riga di comando, via RunConfig.
+# Un default sbagliato qui non dava errore, dava risultati sbagliati in
+# silenzio, ed e' il motivo per cui un intero giro di esperimenti e' stato
+# buttato. A None si rompe forte e subito.
+#
+# Attenzione a come si leggono: chi fa "from IntegratedRescheduling import
+# INSTANCE_DIR" ne fotografa il valore all'import, quindi restera' None per
+# sempre. Va usato "import IntegratedRescheduling as IR" e letto IR.INSTANCE_DIR
+# sul punto d'uso, dopo che RunConfig le ha impostate.
+INSTANCE_DIR       = None
+NETWORK_FILE       = None
+SHORTESTPATHS_FILE = None
+CREW_SCHEDULE_DIR  = None
+CREW_TASK_DIR      = None
+ID_MAPPING_DIR     = None
 
 BASELINE_DAY = datetime(2018, 9, 10)
 
@@ -680,7 +691,16 @@ if __name__ == '__main__':
     parser.add_argument('--gantt', action='store_true',
                         help='Genera il Gantt loco/crew in IntegratedRescheduling/visualize '
                              '(solo con una sola istanza)')
+    RunConfig.add_path_args(parser)
     args = parser.parse_args()
+
+    # Prima di qualunque lettura: le globali di questo modulo valgono None
+    # finche' RunConfig non le riempie. loco_duties_from_excel() usa gia'
+    # INSTANCE_DIR, quindi la risoluzione sta sopra anche al ramo --excel.
+    import sys as _sys
+    run_paths = RunConfig.resolve(args, parser)
+    run_paths.apply_to(_sys.modules[__name__])
+    print(f"[RunConfig] chain={run_paths.chain_name} instances={run_paths.instance_dir}")
 
     ts = _dt.now().strftime('%Y%m%d_%H%M%S')
 
@@ -706,6 +726,13 @@ if __name__ == '__main__':
         all_files    = sorted(glob.glob(os.path.join(INSTANCE_DIR, "S*.json")))
         instance_ids = [os.path.basename(f).replace('.json', '') for f in all_files
                         if 'network' not in f]
+
+    # Schedule e mapping devono venire dalla stessa conversione. Il controllo
+    # costa due letture per istanza e trasforma una catena incrociata da errore
+    # silenzioso in un crash all'avvio.
+    _problems = RunConfig.validate_chain(run_paths, instance_ids)
+    if _problems:
+        parser.error("catena crew incoerente:\n  " + "\n  ".join(_problems))
 
     all_results = []
 
@@ -743,6 +770,9 @@ if __name__ == '__main__':
                 'crew_dh_m':   r.dh_stats['crew_dh_m'],
                 'setup_sec':   r.timings['setup_sec'],
                 'solve_sec':   r.timings['solve_sec'],
+                # Da quali directory viene questo risultato. Senza, una
+                # soluzione vecchia non e' distinguibile da una nuova.
+                **run_paths.as_run_info(),
             }, sol_path)
             print(f"[Solution] → {sol_path}")
 

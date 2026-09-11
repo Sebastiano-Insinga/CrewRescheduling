@@ -1,0 +1,7 @@
+{
+  "_comment": "Catena crew: i tre file di ogni istanza devono venire da qui, insieme. Gli id dei task hanno senso solo dentro la conversione che li ha prodotti; incrociare directory di run diverse non solleva eccezioni, produce numeri sbagliati. I path sono RELATIVI a questa cartella.",
+  "name": "results0709",
+  "crew_schedule": "results_twan_txt",
+  "crew_task": "mapping/Final_Rescheduled_Instances",
+  "id_mapping": "mapping/Final_Rescheduled_ID_Mappings"
+}
