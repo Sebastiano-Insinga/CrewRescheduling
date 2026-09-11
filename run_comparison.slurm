@@ -9,11 +9,12 @@
 #SBATCH --output=logs/cmp_%A_%a.log
 
 # Uso:
-#   sbatch run_comparison.slurm [RUNTAG] [SEED] [PIPELINE]
+#   sbatch run_comparison.slurm [RUNTAG] [SEED] [CHAIN] [INSTANCE_DIR]
 # RUNTAG  : nome della batch sotto Comparison_Integrated_Sequential/runs/
 #           (default: id del job array)
 # SEED    : seed passato a CompareSequentialIntegrated (default: 42)
-# PIPELINE: radice della run di column generation (default: java/results0709)
+# CHAIN   : catena crew, cartella con chain.json (default: java/results0709)
+# INSTANCE_DIR: istanze (default: Instances/single_type/validation/single_type)
 #
 # --time e' per task, non per l'array: ogni istanza ha le sue 3h. Il massimo
 # osservato sull'approccio integrato e' 423 s, quindi il margine e' ampio.
