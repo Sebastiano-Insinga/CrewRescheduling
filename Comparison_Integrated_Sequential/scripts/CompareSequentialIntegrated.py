@@ -30,7 +30,12 @@ from IntegratedRescheduling import run_instance as run_integrated
 
 COMBINED_CSV_COLUMNS = [
     'instance_id', 'seed',
-    'seq_rs_canceled', 'seq_crew_uncovered', 'seq_cancel_total', 'int_n_cancel',
+    'seq_rs_canceled', 'seq_crew_uncovered', 'seq_cancel_total',
+    # seq_crew_uncovered conta task, viaggi E deadhead. seq_trip_cancel_total
+    # conta solo viaggi (rs_canceled + i soli task 'regular' rimasti senza
+    # conducente): e' la colonna comparabile a int_n_cancel, che conta viaggi.
+    'seq_crew_uncovered_trips', 'seq_crew_uncovered_deadheads', 'seq_trip_cancel_total',
+    'int_n_cancel',
     'seq_setup_time_sec', 'seq_rs_time_sec', 'seq_crew_prep_time_sec', 'seq_crew_time_sec',
     'seq_solve_time_sec', 'seq_total_time_sec',
     'int_setup_time_sec', 'int_solve_time_sec', 'int_metrics_time_sec', 'int_time_sec',
@@ -122,7 +127,7 @@ def run_integrated_timed(instance_id, seed=42) -> dict:
     }
 
 
-def compare_instance(instance_id, seed=42, export_solution=None) -> dict:
+def compare_instance(instance_id, seed=42, export_solution=None, run_paths=None) -> dict:
     row = {'instance_id': instance_id, 'seed': seed}
 
     seq = None
@@ -156,6 +161,9 @@ def compare_instance(instance_id, seed=42, export_solution=None) -> dict:
             'crew_dh_m':   r.dh_stats['crew_dh_m'],
             'setup_sec':   r.timings['setup_sec'],
             'solve_sec':   r.timings['solve_sec'],
+            # Senza questo, la soluzione non dice da quali directory e' nata:
+            # lo stesso motivo per cui la riga del CSV lo porta.
+            **(run_paths.as_run_info() if run_paths is not None else {}),
         }, sol_path)
         print(f"[Solution] → {sol_path}")
 
@@ -164,6 +172,9 @@ def compare_instance(instance_id, seed=42, export_solution=None) -> dict:
             'seq_rs_canceled': seq['rs_canceled'],
             'seq_crew_uncovered': seq['crew_uncovered'],
             'seq_cancel_total': seq['rs_canceled'] + seq['crew_uncovered'],
+            'seq_crew_uncovered_trips': seq['crew_uncovered_trips'],
+            'seq_crew_uncovered_deadheads': seq['crew_uncovered_deadheads'],
+            'seq_trip_cancel_total': seq['rs_canceled'] + seq['crew_uncovered_trips'],
             'seq_setup_time_sec': seq['setup_time_sec'],
             'seq_rs_time_sec': seq['rs_time_sec'],
             'seq_crew_prep_time_sec': seq['crew_prep_time_sec'],
@@ -251,7 +262,7 @@ if __name__ == '__main__':
     rows = []
     for iid in instance_ids:
         print(f"{iid:<10} running...", flush=True)
-        row = compare_instance(iid, seed=args.s, export_solution=args.export_solution)
+        row = compare_instance(iid, seed=args.s, export_solution=args.export_solution, run_paths=run_paths)
         row.update(run_paths.as_run_info())
         rows.append(row)
         export_to_csv([row], csv_path)

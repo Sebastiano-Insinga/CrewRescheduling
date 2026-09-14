@@ -102,12 +102,14 @@ def rs_solution_to_open_tasks(rs_solution, instance, network, sp):
                     open_tasks[task_id] = {
                         'id': task_id, 'origin': prev_dest, 'destination': origin,
                         'departure': epoch_to_minutes(dh_start), 'arrival': epoch_to_minutes(dh_end),
+                        'task_type': 'deadhead',
                     }
                     task_id += 1
 
             open_tasks[task_id] = {
                 'id': task_id, 'origin': origin, 'destination': dest,
                 'departure': epoch_to_minutes(dep), 'arrival': epoch_to_minutes(arr),
+                'task_type': 'regular',
             }
             task_id += 1
             prev_arrival, prev_dest, prev_maint_arr = arr, dest, m_arr
@@ -124,17 +126,22 @@ def rs_solution_to_open_tasks_via_reader(instance_id, rs_solution, network_raw, 
     network_dict  = {"sections": {s["id"]: s for s in network_raw["sections"]}}
     instance_dict = read_instance_data(os.path.join(INSTANCE_DIR, f"{instance_id}.json"))
 
-    tasks_to_write, _ = readRollingStockSolution(
+    tasks_to_write, local_id_mapping = readRollingStockSolution(
         f"{instance_id}_rescheduled", rs_solution, network_dict, instance_dict,
         sp, 57.0, 10800.0, 3, False, "2018-09-10",
     )
 
+    # local_id_mapping e' generato dalla stessa chiamata, sugli stessi id: e'
+    # l'unico mapping compatibile con questi task_id. Il mapping caricato da
+    # ID_MAPPING_DIR appartiene al piano pre-disruption, una numerazione
+    # diversa che coincide solo per caso su alcuni id.
     open_tasks = {}
     for row in tasks_to_write:
         tid = int(row[0])
         open_tasks[tid] = {
             "id": tid, "origin": int(row[1]), "destination": int(row[2]),
             "departure": int(row[3]), "arrival": int(row[4]),
+            "task_type": local_id_mapping[tid]['task_type'],
         }
     return open_tasks
 
@@ -286,6 +293,14 @@ def run_instance(instance_id, seed=42, rs_method='randomized_greedy', method='ca
     with open(os.path.join(OUTPUT_CREW_DIR, f"{instance_id}.json"), 'w') as f:
         json.dump({str(k): v for k, v in existing_duties.items()}, f, indent=2)
 
+    # task_type viene da open_tasks, non da id_mapping: id_mapping e' la
+    # numerazione del piano pre-disruption, open_tasks quella della nuova
+    # soluzione RS. Coincidono solo per caso su alcuni id.
+    crew_uncovered_trips = sum(
+        1 for task in uncovered_tasks
+        if open_tasks.get(task['id'], {}).get('task_type') == 'regular')
+    crew_uncovered_deadheads = len(uncovered_tasks) - crew_uncovered_trips
+
     result = {
         'instance_id':        instance_id,
         'rs_method':          rs_method,
@@ -295,7 +310,9 @@ def run_instance(instance_id, seed=42, rs_method='randomized_greedy', method='ca
         'rs_canceled':        rs_canceled,
         'id_mapping_entries': len(id_mapping),
         'crew_duties':        len(existing_duties),
-        'crew_uncovered':     len(uncovered_tasks),
+        'crew_uncovered':          len(uncovered_tasks),
+        'crew_uncovered_trips':     crew_uncovered_trips,
+        'crew_uncovered_deadheads': crew_uncovered_deadheads,
         'crew_dh_km':         round(crew_dh_km, 2),
         'crew_time_sec':      crew_time_sec,
         'setup_time_sec':     setup_sec,
@@ -335,7 +352,8 @@ def run_instance(instance_id, seed=42, rs_method='randomized_greedy', method='ca
 
 
 CSV_COLUMNS = ['instance_id', 'rs_method', 'crew_method', 'rs_trips_total', 'rs_covered',
-               'rs_canceled', 'id_mapping_entries', 'crew_duties', 'crew_uncovered', 'crew_dh_km',
+               'rs_canceled', 'id_mapping_entries', 'crew_duties', 'crew_uncovered',
+               'crew_uncovered_trips', 'crew_uncovered_deadheads', 'crew_dh_km',
                'crew_time_sec', 'vns_method', 'vns_uncovered', 'vns_deadheading', 'vns_breaks_violated',
                'vns_time_sec',
                # Provenienza: da quali directory e' nata la riga. Senza queste
