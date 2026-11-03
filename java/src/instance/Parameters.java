@@ -12,9 +12,9 @@ public class Parameters
 	public static final int VARIABLE_DUTY_COST = 1;
 
 	// Constraints.
-	//public static final int MAX_TIME_WITHOUT_BREAK = 5*60 +30;
-	public static final int MAX_TIME_WITHOUT_BREAK = 12*60;
-	public static final int MIN_BREAK_LENGTH = 0;
+	//public static final int MAX_TIME_WITHOUT_BREAK = 12*60;
+	public static final int MAX_TIME_WITHOUT_BREAK = 5*60 + 30;
+	public static final int MIN_BREAK_LENGTH = 30;
 	public static final int MIN_TRANSITION_TIME = 0;
 	public static final int MAX_DUTY_LENGTH = 12 * 60 ;
 	//12*60
