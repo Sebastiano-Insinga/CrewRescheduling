@@ -16,6 +16,7 @@ public class Instance
 	private final List<Integer> depots;
 	private final List<Task> tasks;
 	private final Map<Integer, Map<Integer, Double>> stationDistances;
+	private final CrewDeadhead crewDeadhead;
 	/**
 	 * Initialises an instance with specified list of depots and tasks.
 	 * 
@@ -25,9 +26,16 @@ public class Instance
 	 */
 	public Instance(List<Integer> depots, List<Task> tasks, Map<Integer, Map<Integer, Double>> stationDistances)
 	{
+		this(depots, tasks, stationDistances, null);
+	}
+
+	public Instance(List<Integer> depots, List<Task> tasks,
+			Map<Integer, Map<Integer, Double>> stationDistances, CrewDeadhead crewDeadhead)
+	{
 		this.depots = depots;
 		this.tasks = tasks;
 		this.stationDistances = stationDistances;
+		this.crewDeadhead = crewDeadhead;
 		sortTasks();
 	}
 
@@ -62,6 +70,11 @@ public class Instance
 	public Map<Integer,Map<Integer,Double>>getStationDistances()
 	{
 		return stationDistances;
+	}
+
+	public CrewDeadhead getCrewDeadhead()
+	{
+		return crewDeadhead;
 	}
 
 

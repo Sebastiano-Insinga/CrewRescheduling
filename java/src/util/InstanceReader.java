@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import instance.CrewDeadhead;
 import instance.Instance;
 import instance.Task;
 
@@ -104,8 +105,10 @@ public class InstanceReader {
         
         
         
+        CrewDeadhead crewDeadhead = CrewDeadhead.fromSystemProperties(uniqueStations);
+
         // Crea e restituisci l'oggetto Instance
-        return new Instance(depotIds,tasks,stationDistances);
+        return new Instance(depotIds,tasks,stationDistances,crewDeadhead);
     }
 	
 	

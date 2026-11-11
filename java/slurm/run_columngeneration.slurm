@@ -1,0 +1,125 @@
+#!/bin/bash
+#SBATCH --job-name=colgen
+#SBATCH --partition=medium
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=128GB
+#SBATCH --time=12:00:00
+#SBATCH --array=1-20
+#SBATCH --output=logs/colgen_%A_%a.log
+
+# Uso:
+#   sbatch run_columngeneration.slurm [TSVDIR] [RUNTAG] [MIPGAP]
+#   CREWDEADHEAD=180 sbatch run_columngeneration.slurm ...  (limite sul rientro)
+# TSVDIR: cartella dei TSV, relativa alla root del repo.
+# RUNTAG: nome della cartella dei risultati sotto runs/.
+# MIPGAP: gap di ottimalita' in fase 2 (0.01 = 1%). Default 0 = ottimo esatto.
+# CREWDEADHEAD: limite sul rientro del crew in minuti. Non impostato = nessun
+#   limite, cioe' esattamente il comportamento delle run precedenti.
+# CREWNETWORK: path della rete, solo per sovrascrivere il default.
+
+# Init di Lmod: sul nodo di calcolo "module" non e' definito di suo.
+if ! command -v module >/dev/null 2>&1; then
+    source /etc/profile.d/lmod.sh 2>/dev/null \
+        || source /opt/apps/2023-04-11_lmod.bash
+fi
+module use /opt/apps/modules/20102025
+
+module load openjdk/17.0.11_9-none-none-hskcbib
+module load cplex/cplex-studio-22.2
+
+# Se i module non hanno funzionato il job deve fallire subito, non
+# affidarsi all'ambiente ereditato dalla shell di submit.
+command -v java >/dev/null || { echo "ERRORE: java non disponibile" >&2; exit 1; }
+
+# Il module cplex non esporta CPLEX_HOME: la root e' quella dei path che
+# prepende (vedi "module show cplex/cplex-studio-22.2").
+CPLEX_ROOT=/opt/apps/CPLEX/CPLEX_Studio222
+CPLEX_JAR=$CPLEX_ROOT/cplex/lib/cplex.jar
+CPLEX_LIB=$CPLEX_ROOT/cplex/bin/x86-64_linux
+
+REPO=$SLURM_SUBMIT_DIR
+
+# Gson serve a CrewDeadhead per leggere network-shortestpaths.json. Il jar sta nel
+# repo: sul nodo di calcolo la rete esterna non c'e', quindi non si scarica qui.
+GSON_JAR=$REPO/java/lib/gson-2.11.0.jar
+if [ ! -f "$GSON_JAR" ]; then
+    echo "ERRORE: gson non trovato: $GSON_JAR" >&2
+    exit 1
+fi
+
+# Limite sul rientro del crew: attivo solo se CREWDEADHEAD e' impostato. Senza,
+# il solver non riceve -Dcrew.network, CrewDeadhead resta null e la run e'
+# identica a quelle di prima: un sbatch vecchio continua a dare gli stessi
+# risultati. Il path della rete deve essere ASSOLUTO, sotto si fa "cd $RUNDIR".
+CREWNETWORK=${CREWNETWORK:-$REPO/Instances/single_type/validation/single_type/network-shortestpaths.json}
+CREWFLAGS=()
+if [ -n "$CREWDEADHEAD" ]; then
+    if [ ! -f "$CREWNETWORK" ]; then
+        echo "ERRORE: rete non trovata: $CREWNETWORK" >&2
+        exit 1
+    fi
+    CREWFLAGS=(-Dcrew.network="$CREWNETWORK" -Dcrew.maxdeadhead="$CREWDEADHEAD")
+fi
+ID=$(printf "S%02d" $SLURM_ARRAY_TASK_ID)
+
+# Cartella dei TSV convertiti, relativa alla root del repo (primo argomento).
+TSVDIR=${1:-Final_Rescheduled_Instances}
+TSV=$REPO/$TSVDIR/Transformed-$ID.tsv
+
+if [ ! -f "$TSV" ]; then
+    echo "ERRORE: istanza non trovata: $TSV" >&2
+    exit 1
+fi
+
+# Etichetta della run (secondo argomento): identica per tutti i task
+# dell'array, diversa a ogni sbatch, cosi' i risultati non si sovrascrivono
+# tra submission. Default: id del job array.
+RUNTAG=${2:-$SLURM_ARRAY_JOB_ID}
+
+# results/ e' relativo alla CWD: una dir per istanza, niente collisioni tra task.
+RUNDIR=$REPO/runs/$RUNTAG/$ID
+mkdir -p $RUNDIR/results
+cd $RUNDIR
+
+# Traccia da dove viene l'input di questa run. Il commit serve a capire, a
+# posteriori, quale versione del codice ha prodotto i risultati: con un array
+# lungo e un git pull nel mezzo, i task possono compilare sorgenti diversi.
+COMMIT=$(git -C "$REPO" rev-parse --short HEAD 2>/dev/null || echo sconosciuto)
+cat > run_info.txt <<EOF
+instance : $ID
+tsv      : $TSV
+commit   : $COMMIT
+deadhead : $([ -n "$CREWDEADHEAD" ] && echo "$CREWDEADHEAD min, rete $CREWNETWORK" || echo "nessun limite")
+job      : $SLURM_ARRAY_JOB_ID / task $SLURM_ARRAY_TASK_ID
+node     : $SLURMD_NODENAME
+started  : $(date -Is)
+EOF
+
+# Compilazione dentro il job: prima era un javac manuale sul login node, e
+# bastava scordarselo dopo un git pull per far girare bytecode vecchio. La
+# JVM avrebbe ignorato in silenzio le -D nuove (nessun errore, nessun log).
+#
+# La build sta in $RUNDIR/build, una per task: 20 javac in parallelo sulla
+# stessa dir si sovrascriverebbero a vicenda. Costa qualche secondo e rende
+# ogni run autosufficiente.
+BUILD=$RUNDIR/build
+mkdir -p "$BUILD"
+command -v javac >/dev/null || { echo "ERRORE: javac non disponibile" >&2; exit 1; }
+javac -cp "$CPLEX_JAR:$GSON_JAR" -d "$BUILD" $(find "$REPO/java/src" -name '*.java') \
+    || { echo "ERRORE: compilazione fallita" >&2; exit 1; }
+
+# Limite CPLEX sul MIP: 11h, un'ora sotto il walltime di 12h, cosi' se il
+# limite scatta resta il tempo di esportare i CSV dei risultati.
+MIPGAP=${3:-0}
+
+# -Xmx e' 16 GB sotto --mem: CPLEX alloca fuori dall'heap Java (strutture
+# native del solver), e un OOM kill di SLURM non lascia traccia nel log.
+# Limite CPLEX sul MIP: 11h, un'ora sotto il walltime, cosi' se il limite
+# scatta resta il tempo di esportare i CSV.
+# mip.log accende il log del solver in fase 2: senza, il branch-and-bound
+# e' completamente muto e non si vede il gap stringersi.
+java -Xmx112g -Dmip.timelimit=39600 -Dmip.gap=$MIPGAP -Dmip.log=true \
+     "${CREWFLAGS[@]}" \
+     -Djava.library.path=$CPLEX_LIB -cp "$BUILD:$CPLEX_JAR:$GSON_JAR" \
+     scripts.Main "$TSV"
