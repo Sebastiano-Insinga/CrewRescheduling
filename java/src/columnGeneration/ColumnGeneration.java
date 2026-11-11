@@ -23,6 +23,7 @@ import ilog.concert.IloException;
 import ilog.concert.IloLPMatrix;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
+import instance.CrewDeadhead;
 import instance.Instance;
 import instance.Parameters;
 import instance.Task;
@@ -41,6 +42,8 @@ public class ColumnGeneration
 	private static final String LOG_FILE_PATH = "results/rejected_duties_log.csv";
 	private static boolean logHeaderWritten = false;
 	private static final String LOG_DIR_PATH = "results";
+
+	private static final int ARTIFICIAL_DUTY_COST = 10_000_000;
 	
 	static {
 		// Crea la cartella dei risultati se non esiste
@@ -154,14 +157,22 @@ public class ColumnGeneration
 	{
 		// The cost of a slack variable is the maximum cost of a feasible duty.
 		int slackCost = Parameters.FIXED_DUTY_COST + Parameters.MAX_DUTY_LENGTH * Parameters.VARIABLE_DUTY_COST;
+		CrewDeadhead deadhead = instance.getCrewDeadhead();
+		int artificial = 0;
 		for (Task task : instance.getTasks())
 		{
 			List<Task> tasks = new ArrayList<>();
 			tasks.add(task);
-			rmp.addDuty(new Duty(slackCost,tasks));
-			
+			boolean allowed = deadhead == null
+					|| deadhead.isAllowed(task.getEndStation(), task.getStartStation());
+			if (!allowed)
+			{
+				artificial++;
+			}
+			rmp.addDuty(new Duty(allowed ? slackCost : ARTIFICIAL_DUTY_COST, tasks));
+
 		}
-		System.out.println("slack duty generated");
+		System.out.println("slack duty generated, artificiali: " + artificial);
 	}
 
 	//print of Matrix.csv

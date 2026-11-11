@@ -17,6 +17,8 @@ public class Parameters
 	public static final int MIN_BREAK_LENGTH = 30;
 	public static final int MIN_TRANSITION_TIME = 0;
 	public static final int MAX_DUTY_LENGTH = 12 * 60 ;
+	public static final int MAX_CREW_DEADHEAD =
+			Integer.parseInt(System.getProperty("crew.maxdeadhead", "180"));
 	//12*60
 	
 	// Instance generation.

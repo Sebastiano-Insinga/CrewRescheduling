@@ -12,6 +12,7 @@ import graph.Connection;
 import graph.GraphConstructor;
 import graph.PricingGraph;
 import graph.ShortestPath;
+import instance.CrewDeadhead;
 import instance.Instance;
 import instance.Parameters;
 import instance.Task;
@@ -34,7 +35,8 @@ public class QuadraticBreak2 extends PricingProblemSolver
 
 	 // NUOVO
     private final Map<Integer, Map<Integer, Double>> stationDistances;
-	
+    private final CrewDeadhead deadhead;
+
 	
 	
 	/**
@@ -56,6 +58,7 @@ public class QuadraticBreak2 extends PricingProblemSolver
 		initialiseEndTaskMap(instance.getTasks());
 		//NUOVO
 		this.stationDistances = instance.getStationDistances();
+		this.deadhead = instance.getCrewDeadhead();
 		debugDuty455(this.graph, this.tasks);
 	
 	}
@@ -459,6 +462,10 @@ public class QuadraticBreak2 extends PricingProblemSolver
 	                        continue;
 	                    }
 
+	                    if (deadhead != null && !deadhead.isAllowed(
+	                            endTaskCandidate.getEndStation(), startTask.getStartStation())) {
+	                        continue;
+	                    }
 
 	                    double returnTravelCost = getTravelCost(endTaskCandidate.getEndStation(), startTask.getStartStation());
 
