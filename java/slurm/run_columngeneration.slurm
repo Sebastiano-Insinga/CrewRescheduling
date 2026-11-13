@@ -11,6 +11,12 @@
 # Uso:
 #   sbatch run_columngeneration.slurm [TSVDIR] [RUNTAG] [MIPGAP]
 #   CREWDEADHEAD=180 sbatch run_columngeneration.slurm ...  (limite sul rientro)
+#   TSVGLOB='Transformed-manuel-*.tsv' CREWDEADHEAD=180 \
+#       sbatch --array=1-22 run_columngeneration.slurm \
+#       manuel_chain/Final_Rescheduled_Instances manuel_cap180
+# TSVGLOB: istanze i cui nomi non seguono Transformed-S%02d. Il task n-esimo
+#   dell'array prende l'n-esimo file in ordine alfabetico, quindi --array deve
+#   coprire esattamente quanti sono. Non impostato: comportamento di sempre.
 # TSVDIR: cartella dei TSV, relativa alla root del repo.
 # RUNTAG: nome della cartella dei risultati sotto runs/.
 # MIPGAP: gap di ottimalita' in fase 2 (0.01 = 1%). Default 0 = ottimo esatto.
@@ -61,11 +67,35 @@ if [ -n "$CREWDEADHEAD" ]; then
     fi
     CREWFLAGS=(-Dcrew.network="$CREWNETWORK" -Dcrew.maxdeadhead="$CREWDEADHEAD")
 fi
-ID=$(printf "S%02d" $SLURM_ARRAY_TASK_ID)
-
 # Cartella dei TSV convertiti, relativa alla root del repo (primo argomento).
 TSVDIR=${1:-Final_Rescheduled_Instances}
-TSV=$REPO/$TSVDIR/Transformed-$ID.tsv
+
+# Quale istanza tocca a questo task dell'array. Due modi:
+#
+# 1. default, invariato: il nome si fabbrica dall'indice, Transformed-S01.tsv ...
+#    Un sbatch identico a quelli di prima prende le stesse istanze.
+# 2. TSVGLOB impostato: le istanze sono i file che corrispondono al glob, in
+#    ordine alfabetico, e il task n-esimo prende l'n-esimo. Serve per le istanze
+#    manuel, i cui nomi non sono S%02d e la cui numerazione salta.
+if [ -n "$TSVGLOB" ]; then
+    TSVS=()
+    while IFS= read -r f; do TSVS+=("$f"); done \
+        < <(ls "$REPO/$TSVDIR"/$TSVGLOB 2>/dev/null | sort)
+    if [ ${#TSVS[@]} -eq 0 ]; then
+        echo "ERRORE: nessun file per '$TSVGLOB' in $REPO/$TSVDIR" >&2
+        exit 1
+    fi
+    if [ "$SLURM_ARRAY_TASK_ID" -gt ${#TSVS[@]} ]; then
+        echo "ERRORE: task $SLURM_ARRAY_TASK_ID oltre i ${#TSVS[@]} file di '$TSVGLOB':" \
+             "l'array e' piu' lungo dell'elenco" >&2
+        exit 1
+    fi
+    TSV=${TSVS[$((SLURM_ARRAY_TASK_ID - 1))]}
+    ID=$(basename "$TSV" .tsv | sed 's/^Transformed-//')
+else
+    ID=$(printf "S%02d" $SLURM_ARRAY_TASK_ID)
+    TSV=$REPO/$TSVDIR/Transformed-$ID.tsv
+fi
 
 if [ ! -f "$TSV" ]; then
     echo "ERRORE: istanza non trovata: $TSV" >&2
