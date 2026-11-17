@@ -9,12 +9,14 @@
 #SBATCH --output=logs/vns_%A_%a.log
 
 # Uso:
-#   sbatch run_vns.slurm [SHAKE] [KMAX] [RUNTAG] [CHAIN] [INSTANCE_DIR]
+#   sbatch run_vns.slurm [SHAKE] [KMAX] [RUNTAG] [CHAIN] [INSTANCE_DIR] [DELTA] [TIME_LIMIT]
 # SHAKE       : ordered | random          (default: random)
 # KMAX        : ampiezza max del vicinato (default: 10)
 # RUNTAG      : nome della batch sotto VNS/runs/ (default: id del job array)
 # CHAIN       : catena crew, cartella con chain.json (default: java/results0709)
 # INSTANCE_DIR: istanze (default: Instances/single_type/validation/single_type)
+# DELTA       : soglia record-to-record, obj < best + DELTA (default: 0 = solo miglioramenti)
+# TIME_LIMIT  : secondi max di ricerca per istanza (default: nessun limite)
 #
 # L'array e' 1-20 perche' la catena results0709 copre S01-S20. Il set storico in
 # results_twan_txt/ si fermava a S18 e ha schedule diversi da S10 in poi: non va
@@ -60,6 +62,9 @@ KMAX=${2:-10}
 RUNTAG=${3:-$SLURM_ARRAY_JOB_ID}
 CHAIN=${4:-java/results0709}
 INSTANCE_DIR=${5:-Instances/single_type/validation/single_type}
+DELTA=${6:-0}
+TIME_LIMIT=${7:-}
+TIME_LIMIT_ARG=${TIME_LIMIT:+--time-limit $TIME_LIMIT}
 ID=$(printf "S%02d" $SLURM_ARRAY_TASK_ID)
 
 INSTANCE=$REPO/$INSTANCE_DIR/$ID.json
@@ -101,6 +106,8 @@ cat > $RUNDIR/csv/${ID}_run_info.txt <<EOF
 instance : $ID
 shake    : $SHAKE
 k_max    : $KMAX
+delta    : $DELTA
+time_lim : ${TIME_LIMIT:-none}
 chain    : $CHAIN
 instances: $INSTANCE_DIR
 commit   : $COMMIT
@@ -113,8 +120,8 @@ EOF
 # scriverebbe un HTML plotly da diversi MB che sul cluster non apre nessuno.
 # --chain e --instance-dir non hanno default nel codice: senza, il processo
 # esce subito invece di ripiegare su directory arbitrarie.
-$PY -u VNSRescheduler.py -i $ID -loop \
+$PY -u VNS/scripts/VNSRescheduler.py -i $ID -loop \
     --chain "$CHAIN" --instance-dir "$INSTANCE_DIR" \
-    --shake $SHAKE -k-max $KMAX --no-gantt \
+    --shake $SHAKE -k-max $KMAX --accept-delta $DELTA $TIME_LIMIT_ARG --no-gantt \
     --export-solution $RUNDIR/solutions \
     -csv $RUNDIR/csv/$ID.csv
