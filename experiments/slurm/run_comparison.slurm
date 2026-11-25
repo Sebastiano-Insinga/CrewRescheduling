@@ -13,7 +13,7 @@
 # RUNTAG  : nome della batch sotto Comparison_Integrated_Sequential/runs/
 #           (default: id del job array)
 # SEED    : seed passato a CompareSequentialIntegrated (default: 42)
-# CHAIN   : catena crew, cartella con chain.json (default: java/results0709)
+# CHAIN   : catena crew, cartella con chain.json (default: java/cap180)
 # INSTANCE_DIR: istanze (default: Instances/single_type/validation/single_type)
 #
 # --time e' per task, non per l'array: ogni istanza ha le sue 3h. Il massimo
@@ -54,7 +54,7 @@ EOF
 
 RUNTAG=${1:-$SLURM_ARRAY_JOB_ID}
 SEED=${2:-42}
-CHAIN=${3:-java/results0709}
+CHAIN=${3:-java/cap180}
 INSTANCE_DIR=${4:-Instances/single_type/validation/single_type}
 ID=$(printf "S%02d" $SLURM_ARRAY_TASK_ID)
 

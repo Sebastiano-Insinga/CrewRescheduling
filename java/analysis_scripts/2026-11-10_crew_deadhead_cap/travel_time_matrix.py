@@ -9,7 +9,7 @@ JAVA = os.path.dirname(os.path.dirname(HERE))
 REPO = os.path.dirname(JAVA)
 SP_DEFAULT = os.path.join(REPO, "Instances", "single_type", "validation",
                           "single_type", "network-shortestpaths.json")
-TASK_DEFAULT = os.path.join(JAVA, "results0709", "mapping", "Final_Rescheduled_Instances")
+TASK_DEFAULT = os.path.join(JAVA, "nocap", "mapping", "Final_Rescheduled_Instances")
 
 
 def read_stations_and_tasks(task_dir):

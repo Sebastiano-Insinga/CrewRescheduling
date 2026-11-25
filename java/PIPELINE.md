@@ -3,7 +3,7 @@
 Full data path, from raw instances to crew rescheduling results. Four stages, each
 with its own inputs and outputs.
 
-Reference run: `java/results0709/`.
+Run described here: `java/nocap/`, plans with no limit on the return trip. The results of the technical documentation use `java/cap180/`, built the same way.
 
 ---
 
@@ -121,7 +121,7 @@ DutyID,TaskIDs
 311,"62 61 99 98 97 64 63"
 ```
 
-In run 0709: `java/results0709/resultsCG/`, 20 instances S01–S20.
+In the `nocap` run: `java/nocap/resultsCG/`, 20 instances S01–S20.
 
 ---
 
@@ -163,9 +163,9 @@ costs    = duration + 10 * number_of_tasks
 ### Command
 
 ```bash
-CSV_INPUT_DIR=java/results0709/resultsCG \
+CSV_INPUT_DIR=java/nocap/resultsCG \
 INSTANCE_DIR=Final_Rescheduled_Instances \
-TXT_OUTPUT_DIR=java/results0709/results_twan_txt \
+TXT_OUTPUT_DIR=java/nocap/results_twan_txt \
 python3 convert_csv_to_twan_format.py
 ```
 
@@ -221,7 +221,7 @@ plus the instance `S01.json`, the network and the shortest paths.
 
 ```bash
 python3 SequentialRescheduling.py \
-  --crew-schedule-dir java/results0709/results_twan_txt \
+  --crew-schedule-dir java/nocap/results_twan_txt \
   --rs-methods randomized_greedy scored_greedy \
   --crew-methods calculateInitialSolution
 ```
@@ -249,7 +249,7 @@ Added so different runs can coexist without overwriting each other:
 ## Run layout
 
 ```
-java/results0709/
+java/nocap/
 ├── resultsCG/                          20 column generation CSVs   (F1)
 ├── results_twan_txt/                   20 _sol.txt files           (F2)
 └── mapping/

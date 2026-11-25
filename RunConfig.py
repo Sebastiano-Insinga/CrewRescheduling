@@ -155,7 +155,7 @@ def add_path_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     g = parser.add_argument_group('percorsi della run')
     g.add_argument('--chain', default=None, dest='chain',
                    help='Cartella della catena crew, quella che contiene '
-                        'chain.json (es. java/results0709). Da sola imposta '
+                        'chain.json (es. java/cap180). Da sola imposta '
                         'crew-schedule-dir, crew-task-dir e id-mapping-dir.')
     g.add_argument('--instance-dir', default=None, dest='instance_dir',
                    help='Directory delle istanze S*.json')
@@ -254,7 +254,7 @@ def from_env(var_chain='CREW_CHAIN', var_instances='INSTANCE_DIR') -> RunPaths:
             f"questo script legge i percorsi dall'ambiente. Esporta {var_chain} "
             f"(cartella con {CHAIN_MANIFEST}) e {var_instances} (directory delle "
             f"istanze) prima di lanciarlo, per esempio:\n"
-            f"  {var_chain}=java/results0709 "
+            f"  {var_chain}=java/cap180 "
             f"{var_instances}=Instances/single_type/validation/single_type \\\n"
             f"      python3 <script>.py")
 

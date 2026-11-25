@@ -13,12 +13,12 @@
 # SHAKE       : ordered | random          (default: random)
 # KMAX        : ampiezza max del vicinato (default: 10)
 # RUNTAG      : nome della batch sotto VNS/runs/ (default: id del job array)
-# CHAIN       : catena crew, cartella con chain.json (default: java/results0709)
+# CHAIN       : catena crew, cartella con chain.json (default: java/cap180)
 # INSTANCE_DIR: istanze (default: Instances/single_type/validation/single_type)
 # DELTA       : soglia record-to-record, obj < best + DELTA (default: 0 = solo miglioramenti)
 # TIME_LIMIT  : secondi max di ricerca per istanza (default: nessun limite)
 #
-# L'array e' 1-20 perche' la catena results0709 copre S01-S20. Il set storico in
+# L'array e' 1-20 perche' la catena cap180 copre S01-S20. Il set storico in
 # results_twan_txt/ si fermava a S18 e ha schedule diversi da S10 in poi: non va
 # mescolato con questo, i risultati non sono confrontabili.
 #
@@ -60,7 +60,7 @@ EOF
 SHAKE=${1:-random}
 KMAX=${2:-10}
 RUNTAG=${3:-$SLURM_ARRAY_JOB_ID}
-CHAIN=${4:-java/results0709}
+CHAIN=${4:-java/cap180}
 INSTANCE_DIR=${5:-Instances/single_type/validation/single_type}
 DELTA=${6:-0}
 TIME_LIMIT=${7:-}

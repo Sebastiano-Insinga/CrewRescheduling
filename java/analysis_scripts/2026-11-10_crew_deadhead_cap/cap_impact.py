@@ -70,7 +70,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Impact of a hard cap on the crew return deadhead, measured on "
                     "the duties of an existing column generation run.")
-    parser.add_argument("-chain", default=os.path.join(JAVA, "results0709", "chain.json"))
+    parser.add_argument("-chain", default=os.path.join(JAVA, "nocap", "chain.json"))
     parser.add_argument("-shortestpaths", default=SP_DEFAULT)
     parser.add_argument("-speed", type=float, default=57.0)
     parser.add_argument("-caps", default="180,240")
