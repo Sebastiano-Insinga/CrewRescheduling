@@ -1,7 +1,7 @@
 
 from collections import namedtuple
 
-from IntegratedRescheduling import epoch_to_minutes
+from rescheduling.IntegratedRescheduling import epoch_to_minutes
 from validator.Helper import EPS, check_chaining, describe, group_by_loco
 from validator.Solution import TRIP, LOCO_DEADHEAD
 
@@ -53,66 +53,109 @@ def loco_deadhead_minutes(net, loco_class, from_st, to_st,
 
     return (dist_meters / 1000.0 / speed) * 60.0
 
-def initial_loco_state(instance, net):
-    """loco_id -> (station, avail_time_min) where rescheduling finds the loco.
 
-    Physical reading: the loco stands where its last pre-disruption trip left
-    it. The solver instead places it at the origin of its next planned trip and
-    takes the repositioning in between for granted — it charges the kilometres
-    but never checks they fit in time. Sticking to the physical position is
-    what makes check_initial_position able to test that assumption instead of
-    restating it.
+def loco_deadhead_arrival(net, loco_class, from_st, to_st,
+                          window_start, window_end) -> tuple:
+    """Earliest (departure, arrival) inside a free window.
 
-    A loco with no earlier trip waits at its depot, available from the start of
-    the rescheduling: what happened before the disruption is none of our
-    business.
-
-    TODO: a loco still travelling when the disruption hits is available later
-    than its arrival — max(disruption_end, arrival + disruption length), see
-    RollingStockGreedy._determine_loco_position. Ignoring that makes this
-    reading more permissive than the solver, which is the wrong direction for
-    a validator.
+    A loco standing at a station can wait for the disruption to clear and then
+    take the regular path, instead of being forced onto the detour for the
+    whole window. Measuring from window_start alone declares unreachable a
+    repositioning that the original plan performs: loco 22552 on S01 has 886
+    free minutes after the disruption and needs 229.
     """
-    pre_state = {}
+    minutes = loco_deadhead_minutes(net, loco_class, from_st, to_st,
+                                    window_start, window_end)
+    best = (window_start, window_start + minutes)
+
+    if window_end > net.disruption_end > window_start:
+        start    = net.disruption_end + EPS
+        deferred = loco_deadhead_minutes(net, loco_class, from_st, to_st,
+                                         start, window_end)
+        if start + deferred < best[1]:
+            best = (start, start + deferred)
+    return best
+
+
+def initial_loco_state(instance, net):
+    """loco_id -> (station, avail_time_min, km) where rescheduling finds the loco.
+
+    The reading of the reference model, ReadInitialSolution() in
+    railwayrescheduling/solvers/inputoutput/frisch_input.cc, re-stated here:
+
+      - a loco that finished its last pre-disruption trip and has a planned
+        trip afterwards is taken to be already repositioned at that trip's
+        origin, available at its departure; if that trip carries maintenance at
+        departure the counter is reset, otherwise the repositioning km are added
+      - a loco still running at the disruption start stays at that trip's
+        destination; if it ran on a disrupted section it is free only at
+        max(disruption_end, arrival + disruption length)
+      - a loco with no pre-disruption trip stands at its next planned trip's
+        origin, or at its depot, with its kilometres untouched
+    """
+    disrupted_sections = set(instance.get('disrupted_sections', []))
+    by_loco = {}
     for e in instance['solution']:
         loco = e['locomotive']
         if loco == 'canceled':
             continue
-        trip = net.trips_by_id[e['id_trip']]
-        if epoch_to_minutes(trip['departure_time']) < net.disruption_start:
-            # the instance stores the flags as strings, the solution file as bools
-            pre_state.setdefault(loco, []).append(PreTrip(
-                trip,
-                e['maintenance_at_departure']   == 'true',
-                e['maintenance_at_destination'] == 'true'))
+        # the instance stores the flags as strings, the solution file as bools
+        by_loco.setdefault(loco, []).append(PreTrip(
+            net.trips_by_id[e['id_trip']],
+            e['maintenance_at_departure']   == 'true',
+            e['maintenance_at_destination'] == 'true'))
 
     state = {}
-    for loco_id in net.locos_by_id:
-        if loco_id in pre_state:
-            trips   = sorted(pre_state[loco_id], key=lambda p: p.trip['departure_time'])
-            last    = trips[-1].trip
-            station = net.sections[last['section']]['destination']
-            time    = epoch_to_minutes(last['arrival_time'])
-            km = net.locos_by_id[loco_id]['kilometers_since_last_maintenance']
-            prev_arrival = None
-            prev_dest = net.locos_by_id[loco_id]['initial_departure_station']
+    for loco_id, loco in net.locos_by_id.items():
+        trips = sorted(by_loco.get(loco_id, []), key=lambda p: p.trip['departure_time'])
+        pre   = [p for p in trips
+                 if epoch_to_minutes(p.trip['departure_time']) < net.disruption_start]
+        nxt   = next((p for p in trips
+                      if epoch_to_minutes(p.trip['departure_time']) >= net.disruption_start),
+                     None)
 
-            for p in trips:
-                sec = net.sections[p.trip['section']]
-                we = epoch_to_minutes(p.trip['departure_time'])
-                ws = epoch_to_minutes(prev_arrival) if prev_arrival is not None else we
-                km += deadhead_km(net, prev_dest, sec['origin'],ws, we)  
-                if p.maint_dep:
-                    km= 0.0
-                km +=sec['distance']
-                if p.maint_dest:
-                    km= 0.0
-                prev_dest = sec['destination']
-                prev_arrival = p.trip['arrival_time']
-        else:
-            station = net.locos_by_id[loco_id]['initial_departure_station']
-            time    = net.disruption_start
-            km = net.locos_by_id[loco_id]['kilometers_since_last_maintenance']
+        km           = loco['kilometers_since_last_maintenance']
+        station      = loco['initial_departure_station']
+        time         = net.disruption_start
+        prev_arrival = None
+        prev_dest    = loco['initial_departure_station']
+        caught       = False
+        for p in pre:
+            sec = net.sections[p.trip['section']]
+            we  = epoch_to_minutes(p.trip['departure_time'])
+            ws  = epoch_to_minutes(prev_arrival) if prev_arrival is not None else we
+            km += deadhead_km(net, prev_dest, sec['origin'], ws, we)
+            if p.maint_dep:
+                km = 0.0
+            km += sec['distance']
+            if p.maint_dest:
+                km = 0.0
+            if (epoch_to_minutes(p.trip['arrival_time']) >= net.disruption_start
+                    and p.trip['section'] in disrupted_sections):
+                caught = True
+            prev_dest    = sec['destination']
+            prev_arrival = p.trip['arrival_time']
+
+        if pre:
+            arrival = epoch_to_minutes(pre[-1].trip['arrival_time'])
+            if arrival >= net.disruption_start:
+                station = prev_dest
+                time    = (max(net.disruption_end,
+                               arrival + (net.disruption_end - net.disruption_start))
+                           if caught else arrival)
+            elif nxt is None:
+                station = prev_dest
+            else:
+                origin  = net.sections[nxt.trip['section']]['origin']
+                station = origin
+                time    = epoch_to_minutes(nxt.trip['departure_time'])
+                if nxt.maint_dep:
+                    km = 0.0
+                else:
+                    km += deadhead_km(net, prev_dest, origin, arrival, arrival)
+        elif nxt is not None:
+            station = net.sections[nxt.trip['section']]['origin']
+
         state[loco_id] = LocoState(station, time, km)
     return state
 
@@ -158,10 +201,21 @@ def check_loco_deadhead(loco_id, net, tasks) -> list:
 def check_initial_position(loco_id, net, tasks, state) -> list:
     violations = []
     loco_class = net.loco_classes[net.locos_by_id[loco_id]['class']]
-    if tasks[0]['departure'] + EPS < state.avail_time :
+    first = tasks[0]
+    if first['departure'] + EPS < state.avail_time :
         violations.append(f"loco :{loco_id} before being available")
-    if state.avail_time + loco_deadhead_minutes(net, loco_class, state.station, tasks[0]['origin'],state.avail_time ,tasks[0]['departure'] )  > tasks[0]['departure'] + EPS:
-        violations.append(f"loco: {loco_id} is arriving too late for {tasks[0]['origin']}")
+
+    start, arrival = loco_deadhead_arrival(net, loco_class, state.station,
+                                           first['origin'],
+                                           state.avail_time, first['departure'])
+    if arrival == float('inf'):
+        violations.append(f"loco {loco_id}: cannot reach the first task, no path "
+                          f"{state.station}->{first['origin']}")
+    elif arrival > first['departure'] + EPS:
+        violations.append(f"loco {loco_id}: reaching {first['origin']} from "
+                          f"{state.station} needs {arrival - start:.1f} min leaving "
+                          f"at {start:.1f}, but the task departs at "
+                          f"{first['departure']:.1f}")
     return violations
 
 
@@ -296,12 +350,17 @@ def compute_loco_violations(instance, net, sol):
     # pre-disruption plan
     state = initial_loco_state(instance, net)
 
+    # La soluzione dichiara se e' stata prodotta senza manutenzione: validarla
+    # contro vincoli di manutenzione segnalerebbe violazioni per costruzione.
+    ignore_maintenance = bool(getattr(sol, 'run_info', {}).get('no_maintenance'))
+
     violations = []
     for loco_id, tasks in group_by_loco(sol).items():
         violations += check_loco_chaining(loco_id, tasks)
         violations += check_loco_deadhead(loco_id, net, tasks)
         violations += check_initial_position(loco_id, net, tasks,state[loco_id])
         violations += check_loco_class(loco_id, net, tasks)
-        violations += check_maintenance_km(loco_id, net, tasks, state[loco_id])
-        violations += check_maintenance_feasibility(loco_id, net, tasks, state[loco_id])
+        if not ignore_maintenance:
+            violations += check_maintenance_km(loco_id, net, tasks, state[loco_id])
+            violations += check_maintenance_feasibility(loco_id, net, tasks, state[loco_id])
     return violations

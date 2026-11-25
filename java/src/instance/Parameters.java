@@ -19,6 +19,8 @@ public class Parameters
 	public static final int MAX_DUTY_LENGTH = 12 * 60 ;
 	public static final int MAX_CREW_DEADHEAD =
 			Integer.parseInt(System.getProperty("crew.maxdeadhead", "180"));
+	public static final double CREW_DEADHEAD_PENALTY =
+			Double.parseDouble(System.getProperty("crew.deadheadpenalty", "0"));
 	//12*60
 	
 	// Instance generation.

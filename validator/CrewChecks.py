@@ -2,7 +2,12 @@
 
 The rules are re-stated here instead of being imported from VNS_Rescheduling:
 a validator that calls the same functions as the solver cannot contradict it.
+The measure is not: crew travel times and the instant a duty starts come from
+CrewDeadhead, because asking the same graph twice with two readings does not
+make the check stricter, it only makes the numbers incomparable.
 """
+from rescheduling.CrewDeadhead import (crew_deadhead_arrival, crew_deadhead_minutes,
+                          duty_minutes, duty_start, initial_travel)
 from validator.Helper import EPS, check_chaining, describe, group_by_driver
 from validator.Solution import CREW_DEADHEAD
 
@@ -21,37 +26,6 @@ def check_driver_chaining(driver_id, tasks) -> list:
     return check_chaining('driver', driver_id, tasks, gap_hint=" (no crew_deadhead)")
 
 
-def crew_deadhead_minutes(net, from_st, to_st, window_start, window_end) -> float:
-    """Travel time of a crew deadhead, in minutes, float('inf') if unreachable.
-
-    Crew travels as a passenger: full unfiltered matrices (sp_raw / dsp_crew)
-    at CREW_SPEED_KMH, unlike a loco deadhead which uses the filtered ones.
-    The disrupted matrix applies when the window overlaps the disruption and
-    the regular shortest path crosses a disrupted section.
-    """
-    if from_st == to_st:
-        return 0.0
-
-    entry = net.sp_raw.get(str(from_st), {}).get(str(to_st))
-    disruption_active = (window_start <= net.disruption_end and
-                         window_end   >= net.disruption_start)
-
-    path_blocked = False
-    if disruption_active and entry is not None:
-        path = [int(from_st)] + [int(n) for n in entry.get('path', [])]
-        path_blocked = any((u, v) in net.disrupted_edges
-                           for u, v in zip(path, path[1:]))
-
-    if path_blocked or entry is None:
-        dist_meters = net.dsp_crew.get(int(from_st), {}).get(int(to_st), float('inf'))
-    else:
-        dist_meters = entry['weight']
-
-    if dist_meters == float('inf') or dist_meters >= 2147483647:
-        return float('inf')
-    return (dist_meters / 1000.0 / CREW_SPEED_KMH) * 60.0
-
-
 def check_crew_deadhead(driver_id, net, tasks) -> list:
     """The crew_deadhead window must fit the actual travel time.
 
@@ -66,17 +40,16 @@ def check_crew_deadhead(driver_id, net, tasks) -> list:
             violations.append(
                 f"driver {driver_id}: crew_deadhead carries locomotive "
                 f"{a['locomotive']} — {describe(a)}")
-        minutes = crew_deadhead_minutes(net, a['origin'], a['destination'],
-                                        a['departure'], a['arrival'])
-        if minutes == float('inf'):
+        start, arrival = crew_deadhead_arrival(net, a['origin'], a['destination'],
+                                               a['departure'], a['arrival'])
+        if arrival == float('inf'):
             violations.append(
                 f"driver {driver_id}: unreachable crew_deadhead "
                 f"{a['origin']}->{a['destination']} — {describe(a)}")
-        elif a['departure'] + minutes > a['arrival']:
-            window = a['arrival'] - a['departure']
+        elif arrival > a['arrival']:
             violations.append(
-                f"driver {driver_id}: crew_deadhead needs {minutes:.1f} min but the "
-                f"window is {window:.1f} min — {describe(a)}")
+                f"driver {driver_id}: crew_deadhead needs {arrival - start:.1f} min "
+                f"but the window is {a['arrival'] - start:.1f} min — {describe(a)}")
     return violations
 
 
@@ -86,8 +59,9 @@ def check_initial_position(driver_id, mapper, net, tasks) -> list:
 
     VNSExport only materialises a crew_deadhead between consecutive tasks, so
     this initial repositioning never appears in the file: it is checked against
-    driver_status instead. Reachability only — those minutes count towards the
-    duty just for a driver already on duty, and that is check_duty_length.
+    driver_status instead. Reachability only — how those minutes land in the
+    duty is duty_length's business, and since the journey is service they now
+    count for every driver, not just one already on duty.
     """
     status = mapper.driver_status.get(driver_id)
     if status is None:
@@ -100,41 +74,61 @@ def check_initial_position(driver_id, mapper, net, tasks) -> list:
                 f"— {describe(first)}"]
 
     origin = status['available_from_station']
-    minutes = crew_deadhead_minutes(net, origin, first['origin'],
-                                    status['available_at_time'], first['departure'])
-    if minutes == float('inf'):
+    start, arrival = crew_deadhead_arrival(net, origin, first['origin'],
+                                           status['available_at_time'],
+                                           first['departure'])
+    if arrival == float('inf'):
         return [f"driver {driver_id}: cannot reach the first task, no path "
                 f"{origin}->{first['origin']} — {describe(first)}"]
-    if status['available_at_time'] + minutes > first['departure']:
-        window = first['departure'] - status['available_at_time']
+    if arrival > first['departure']:
         return [f"driver {driver_id}: reaching the first task from {origin} needs "
-                f"{minutes:.1f} min but only {window:.1f} min are available "
-                f"— {describe(first)}"]
+                f"{arrival - start:.1f} min but only {first['departure'] - start:.1f} "
+                f"min are available — {describe(first)}"]
     return []
 
 
-def duty_length(status, tasks) -> float:
+def duty_length(status, net, tasks) -> float:
     """Minutes of duty worked by the driver, MAX_DUTY_LENGTH being the cap.
 
     A driver already on duty when the disruption hit carries duty_length
     minutes over: the duty started that long before available_at_time, so
     everything after it counts, repositioning included. A driver not on duty
-    yet starts working at the first task: reaching it is commuting, not
-    service. Travelling back home afterwards is not service either — it only
-    enters the objective, never the duty.
+    yet has to travel to the first task, and that journey is service: the duty
+    opens when they set off, not when the first task departs. Travelling back
+    home afterwards is not service — it only enters the objective.
+
+    The duty ends at the last arrival of the chain, not at the arrival of the
+    task departing last: a solution that overlaps two tasks can declare a
+    crew_deadhead whose window runs backwards, and reading its arrival would
+    close the duty before the driver is done.
+
+    The first task is the first one that is not an initial CREW_DEADHEAD: once
+    VNSExport materialises that repositioning, reading tasks[0] would put the
+    duty start back at available_at_time and charge the wait as service. A
+    materialised file and a legacy one have to give the same number, which is
+    why the formula lives in a single primitive.
     """
-    if status['duty_length'] > 0:
-        return tasks[-1]['arrival'] - status['available_at_time'] + status['duty_length']
-    return tasks[-1]['arrival'] - tasks[0]['departure']
+    last = max(a['arrival'] for a in tasks)
+    first = _first_served_task(tasks)
+    return duty_minutes(net, status, first['origin'], first['departure'], last)
 
 
-def check_duty_length(driver_id, mapper, tasks) -> list:
+def _first_served_task(tasks) -> dict:
+    """The task the duty is built around: the initial repositioning, when the
+    exporter wrote it out, is the journey to it, not the first served task."""
+    for a in tasks:
+        if a['type'] != CREW_DEADHEAD:
+            return a
+    return tasks[0]
+
+
+def check_duty_length(driver_id, mapper, net, tasks) -> list:
     """A duty cannot exceed MAX_DUTY_LENGTH. Exactly at the cap is legal."""
     status = mapper.driver_status.get(driver_id)
     if status is None:
         return []   # already reported by check_initial_position
 
-    duty = duty_length(status, tasks)
+    duty = duty_length(status, net, tasks)
     if duty > MAX_DUTY_LENGTH + EPS:
         carried = f", {status['duty_length']:.1f} of them before the disruption" \
                   if status['duty_length'] > 0 else ""
@@ -160,38 +154,44 @@ def idle_windows(status, net, tasks, duty) -> list:
 
     Capacity is below the window width whenever part of it is already sold to
     travel: a crew_deadhead window has to carry the driver to the next task
-    first, and only what is left over can be spent resting.
+    first, and only what is left over can be spent resting. The travel is the
+    one crew_deadhead_arrival measures, deferral included — the same reading
+    check_crew_deadhead applies, so a path the disruption blocks at the start
+    of the window does not eat the whole window.
 
-      - inside a crew_deadhead: width minus travel time
+      - inside a crew_deadhead: what is left once the driver has arrived
       - a plain gap between two tasks at the same station: the whole width
       - before the first task, for a driver already on duty: the wait minus
-        the travel needed to reach it
+        the travel needed to reach it. A driver not on duty yet gets no such
+        window: their duty opens when they set off, so the wait before that
+        is not service and resting in it is not a break.
       - after the last task: the duty is over as far as this solution goes,
         but the real duty continues, so the break fits as long as it stays
         within MAX_DUTY_LENGTH
     """
     windows = []
 
+    first = _first_served_task(tasks)
     if status['duty_length'] > 0:
-        travel = crew_deadhead_minutes(net, status['available_from_station'],
-                                       tasks[0]['origin'],
-                                       status['available_at_time'], tasks[0]['departure'])
-        width = tasks[0]['departure'] - status['available_at_time']
-        windows.append((status['available_at_time'], tasks[0]['departure'], width - travel))
+        arrival = crew_deadhead_arrival(net, status['available_from_station'],
+                                        first['origin'],
+                                        status['available_at_time'],
+                                        first['departure'])[1]
+        windows.append((status['available_at_time'], first['departure'],
+                        first['departure'] - arrival))
 
     for a in tasks:
         if a['type'] == CREW_DEADHEAD:
-            travel = crew_deadhead_minutes(net, a['origin'], a['destination'],
-                                           a['departure'], a['arrival'])
-            width = a['arrival'] - a['departure']
-            windows.append((a['departure'], a['arrival'], width - travel))
+            arrival = crew_deadhead_arrival(net, a['origin'], a['destination'],
+                                            a['departure'], a['arrival'])[1]
+            windows.append((a['departure'], a['arrival'], a['arrival'] - arrival))
 
     for prev, nxt in zip(tasks, tasks[1:]):
         width = nxt['departure'] - prev['arrival']
         if width > 0:
             windows.append((prev['arrival'], nxt['departure'], width))
 
-    last_arrival = tasks[-1]['arrival']
+    last_arrival = max(a['arrival'] for a in tasks)
     tail = MAX_DUTY_LENGTH - duty
     if tail > 0:
         windows.append((last_arrival, last_arrival + tail, tail))
@@ -205,7 +205,7 @@ def check_break(driver_id, mapper, net, sol, tasks) -> list:
     if status is None:
         return []   # already reported by check_initial_position
 
-    duty     = duty_length(status, tasks)
+    duty     = duty_length(status, net, tasks)
     required = required_break_length(status, duty)
     if required == 0:
         return []   # the exporter still writes a (-45, 0) sentinel: ignore it
@@ -241,6 +241,6 @@ def compute_crew_violations(mapper, net, sol):
         violations += check_driver_chaining(driver_id, tasks)
         violations += check_crew_deadhead(driver_id, net, tasks)
         violations += check_initial_position(driver_id, mapper, net, tasks)
-        violations += check_duty_length(driver_id, mapper, tasks)
+        violations += check_duty_length(driver_id, mapper, net, tasks)
         violations += check_break(driver_id, mapper, net, sol, tasks)
     return violations

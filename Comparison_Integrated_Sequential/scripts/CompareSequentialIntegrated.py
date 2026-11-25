@@ -20,21 +20,23 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from RollingStockGreedy import count_canceled
-import SequentialRescheduling as SR
-import IntegratedRescheduling as IR
+from rescheduling.RollingStockGreedy import count_canceled
+from rescheduling import SequentialRescheduling as SR
+from rescheduling import IntegratedRescheduling as IR
 import RunConfig
-from SequentialRescheduling import run_instance as run_sequential
-from IntegratedRescheduling import run_instance as run_integrated
+from rescheduling.SequentialRescheduling import run_instance as run_sequential
+from rescheduling.IntegratedRescheduling import run_instance as run_integrated
 
 
 COMBINED_CSV_COLUMNS = [
-    'instance_id', 'seed',
+    'instance_id', 'seed', 'no_maintenance',
     'seq_rs_canceled', 'seq_crew_uncovered', 'seq_cancel_total',
     # seq_crew_uncovered conta task, viaggi E deadhead. seq_trip_cancel_total
     # conta solo viaggi (rs_canceled + i soli task 'regular' rimasti senza
-    # conducente): e' la colonna comparabile a int_n_cancel, che conta viaggi.
+    # conducente), ma non propaga i deadhead scoperti, mentre int_n_cancel lo
+    # fa: la colonna davvero comparabile a int_n_cancel e' seq_trip_lost_total.
     'seq_crew_uncovered_trips', 'seq_crew_uncovered_deadheads', 'seq_trip_cancel_total',
+    'seq_crew_lost_trips', 'seq_trip_lost_total',
     'int_n_cancel',
     'seq_setup_time_sec', 'seq_rs_time_sec', 'seq_crew_prep_time_sec', 'seq_crew_time_sec',
     'seq_solve_time_sec', 'seq_total_time_sec',
@@ -84,7 +86,7 @@ def compute_sequential_loco_dh_m(rs_solution, instance, network, sp) -> float:
     return total_m
 
 
-def run_sequential_with_rs_time(instance_id, seed=42) -> dict:
+def run_sequential_with_rs_time(instance_id, seed=42, ignore_maintenance=False) -> dict:
     """
     Sequential con tempi per fase. Il greedy RS gira una volta sola, dentro
     run_instance: il deadhead locomotive si calcola dopo, sulla soluzione che
@@ -95,6 +97,7 @@ def run_sequential_with_rs_time(instance_id, seed=42) -> dict:
         instance_id, seed=seed,
         rs_method='scored_greedy',
         method='calculateInitialSolution_deadhead',
+        ignore_maintenance=ignore_maintenance,
     )
 
     seq_result['seq_total_time_sec'] = round(
@@ -108,9 +111,9 @@ def run_sequential_with_rs_time(instance_id, seed=42) -> dict:
     return seq_result
 
 
-def run_integrated_timed(instance_id, seed=42) -> dict:
+def run_integrated_timed(instance_id, seed=42, ignore_maintenance=False) -> dict:
     t0 = time.time()
-    r = run_integrated(instance_id, seed=seed)
+    r = run_integrated(instance_id, seed=seed, ignore_maintenance=ignore_maintenance)
     elapsed = round(time.time() - t0, 3)
     t = r.timings
     return {
@@ -127,20 +130,24 @@ def run_integrated_timed(instance_id, seed=42) -> dict:
     }
 
 
-def compare_instance(instance_id, seed=42, export_solution=None, run_paths=None) -> dict:
-    row = {'instance_id': instance_id, 'seed': seed}
+def compare_instance(instance_id, seed=42, export_solution=None, run_paths=None,
+                     ignore_maintenance=False) -> dict:
+    row = {'instance_id': instance_id, 'seed': seed,
+           'no_maintenance': ignore_maintenance}
 
     seq = None
     try:
         with contextlib.redirect_stdout(io.StringIO()):
-            seq = run_sequential_with_rs_time(instance_id, seed=seed)
+            seq = run_sequential_with_rs_time(instance_id, seed=seed,
+                                              ignore_maintenance=ignore_maintenance)
     except Exception as e:
         row['error_sequential'] = str(e)
 
     integ = None
     try:
         with contextlib.redirect_stdout(io.StringIO()):
-            integ = run_integrated_timed(instance_id, seed=seed)
+            integ = run_integrated_timed(instance_id, seed=seed,
+                                         ignore_maintenance=ignore_maintenance)
     except Exception as e:
         row['error_integrated'] = str(e)
 
@@ -155,6 +162,7 @@ def compare_instance(instance_id, seed=42, export_solution=None, run_paths=None)
             'instance_id': instance_id,
             'method':      'integrated',
             'seed':        seed,
+            'no_maintenance': ignore_maintenance,
             'objective':   r.dh_stats['loco_dh_m'] + r.dh_stats['crew_dh_m'],
             'n_canceled':  len(r.canceled_tasks),
             'loco_dh_m':   r.dh_stats['loco_dh_m'],
@@ -175,6 +183,8 @@ def compare_instance(instance_id, seed=42, export_solution=None, run_paths=None)
             'seq_crew_uncovered_trips': seq['crew_uncovered_trips'],
             'seq_crew_uncovered_deadheads': seq['crew_uncovered_deadheads'],
             'seq_trip_cancel_total': seq['rs_canceled'] + seq['crew_uncovered_trips'],
+            'seq_crew_lost_trips':  seq['crew_lost_trips'],
+            'seq_trip_lost_total':  seq['trip_lost_total'],
             'seq_setup_time_sec': seq['setup_time_sec'],
             'seq_rs_time_sec': seq['rs_time_sec'],
             'seq_crew_prep_time_sec': seq['crew_prep_time_sec'],
@@ -214,6 +224,10 @@ if __name__ == '__main__':
     parser.add_argument('-i', nargs='+', metavar='S01',
                          help='Instance IDs to run (default: all S*.json in single_type/)')
     parser.add_argument('-s', type=int, default=42)
+    parser.add_argument('--no-maintenance', action='store_true', dest='no_maintenance',
+                        help='Disattiva la manutenzione in entrambi gli approcci: nessun '
+                             'vincolo sui km, nessuna manutenzione pianificata, flag del '
+                             'piano originale ignorati. Finisce in colonna e nel run_info.')
     parser.add_argument('-o', '--out', dest='out',
                         help='CSV di output (default: comparison_results/sequential_vs_integrated_<timestamp>.csv)')
     parser.add_argument('--export-solution', metavar='DIR', dest='export_solution',
@@ -262,7 +276,9 @@ if __name__ == '__main__':
     rows = []
     for iid in instance_ids:
         print(f"{iid:<10} running...", flush=True)
-        row = compare_instance(iid, seed=args.s, export_solution=args.export_solution, run_paths=run_paths)
+        row = compare_instance(iid, seed=args.s, export_solution=args.export_solution,
+                               run_paths=run_paths,
+                               ignore_maintenance=args.no_maintenance)
         row.update(run_paths.as_run_info())
         rows.append(row)
         export_to_csv([row], csv_path)

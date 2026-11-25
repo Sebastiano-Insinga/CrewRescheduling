@@ -156,7 +156,8 @@ public class ColumnGeneration
 	private static void addSlackDuties(RMP rmp, Instance instance) throws IloException
 	{
 		// The cost of a slack variable is the maximum cost of a feasible duty.
-		int slackCost = Parameters.FIXED_DUTY_COST + Parameters.MAX_DUTY_LENGTH * Parameters.VARIABLE_DUTY_COST;
+		int slackCost = Parameters.FIXED_DUTY_COST + Parameters.MAX_DUTY_LENGTH * Parameters.VARIABLE_DUTY_COST
+				+ (int) Math.round(Parameters.CREW_DEADHEAD_PENALTY * Parameters.MAX_CREW_DEADHEAD);
 		CrewDeadhead deadhead = instance.getCrewDeadhead();
 		int artificial = 0;
 		for (Task task : instance.getTasks())
@@ -1050,13 +1051,30 @@ public static void exportFinalDutiesWithTasks(RMP rmp, String instanceName) thro
 	DisjointSelector selector = new DisjointSelector(Parameters.SIMILARITY_THRESHOLD);
 	addSlackDuties(rmp, instance);	
 	int nn=0;
+	int maxIterations = Integer.parseInt(System.getProperty("cg.maxiterations", "500"));
+	int maxStalls = Integer.parseInt(System.getProperty("cg.maxstalls", "20"));
+	double previousObjective = Double.MAX_VALUE;
+	int stalls = 0;
 	mainLoop: while (true)
 	{	 
-		nn++;				
+		nn++;
+		if (nn > maxIterations)
+		{
+			System.out.println("STOP: tetto di " + maxIterations + " iterazioni raggiunto");
+			break mainLoop;
+		}
 		rmp.solve();
 		exportModel(rmp.getCplex(), LOG_DIR_PATH + "\\rmp_model_new"+nn+".lp");
         double currentObjective = rmp.getObjectiveValue();
-        System.out.println("Valore Obiettivo RMP: " + currentObjective);     
+        System.out.println("Valore Obiettivo RMP: " + currentObjective);
+        stalls = currentObjective < previousObjective - Parameters.PRECISION ? 0 : stalls + 1;
+        previousObjective = currentObjective;
+        if (stalls >= maxStalls)
+        {
+            System.out.println("STOP: obiettivo fermo a " + currentObjective + " per "
+                    + stalls + " iterazioni, possibile ciclo nel pricing");
+            break mainLoop;
+        }
         for (Task task : instance.getTasks())
         {	
         	task.setDual(-rmp.getCoverDual(task));
@@ -1077,7 +1095,7 @@ public static void exportFinalDutiesWithTasks(RMP rmp, String instanceName) thro
 			}					
 			if (duties.size() > 0)
 			{
-				for(Duty duty: selector.selectColumns(duties)){   
+				for(Duty duty: selector.selectColumns(duties)){
 					rmp.addDuty(duty);
 	                   //printDuty("Created duty",duty);
 	                   //System.out.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
@@ -1102,11 +1120,12 @@ public static void exportFinalDutiesWithTasks(RMP rmp, String instanceName) thro
     // Since variables are now Integer, CPLEX will automatically use Branch-and-Bound/Cut.
     // It will assume duals are no longer needed.
     
-    // Default 12 ore. Sovrascrivibile senza ricompilare con
-    // -Dmip.timelimit=<secondi>, cosi' su SLURM si puo' lasciare un
-    // margine rispetto al walltime per l'esportazione dei risultati.
+    // Default 11 ore, lo stesso valore che passa lo script SLURM: un'ora
+    // sotto il walltime di 12 h, cosi' se il limite scatta resta il tempo di
+    // esportare i CSV. Sovrascrivibile senza ricompilare con
+    // -Dmip.timelimit=<secondi>.
     double timeLimitSeconds = Double.parseDouble(
-            System.getProperty("mip.timelimit", "43200"));
+            System.getProperty("mip.timelimit", "39600"));
     System.out.println("Time limit set:"+ timeLimitSeconds);
     rmp.setTimeLimit(timeLimitSeconds);
 

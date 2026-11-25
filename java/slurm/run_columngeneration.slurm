@@ -9,8 +9,10 @@
 #SBATCH --output=logs/colgen_%A_%a.log
 
 # Uso:
-#   sbatch run_columngeneration.slurm [TSVDIR] [RUNTAG] [MIPGAP]
+#   sbatch run_columngeneration.slurm TSVDIR [RUNTAG] [MIPGAP]
 #   CREWDEADHEAD=180 sbatch run_columngeneration.slurm ...  (limite sul rientro)
+#   CREWDEADHEAD=180 CREWPENALTY=3 sbatch run_columngeneration.slurm ...
+#       (limite sul rientro + costo per minuto di rientro)
 #   TSVGLOB='Transformed-manuel-*.tsv' CREWDEADHEAD=180 \
 #       sbatch --array=1-22 run_columngeneration.slurm \
 #       manuel_chain/Final_Rescheduled_Instances manuel_cap180
@@ -22,6 +24,8 @@
 # MIPGAP: gap di ottimalita' in fase 2 (0.01 = 1%). Default 0 = ottimo esatto.
 # CREWDEADHEAD: limite sul rientro del crew in minuti. Non impostato = nessun
 #   limite, cioe' esattamente il comportamento delle run precedenti.
+# CREWPENALTY: costo di ogni minuto di rientro. Non impostata = costo piatto 20,
+#   cioe' il comportamento delle run precedenti. Richiede CREWDEADHEAD.
 # CREWNETWORK: path della rete, solo per sovrascrivere il default.
 
 # Init di Lmod: sul nodo di calcolo "module" non e' definito di suo.
@@ -67,8 +71,18 @@ if [ -n "$CREWDEADHEAD" ]; then
     fi
     CREWFLAGS=(-Dcrew.network="$CREWNETWORK" -Dcrew.maxdeadhead="$CREWDEADHEAD")
 fi
+# Penalita' sul rientro: costo = CREWPENALTY * minuti di deadhead, al posto del costo
+# piatto di 20. Non impostata, o 0, significa costo piatto come in tutte le run di prima.
+# Richiede CREWDEADHEAD, perche' i minuti vengono dalla rete caricata li'.
+if [ -n "$CREWPENALTY" ]; then
+    if [ -z "$CREWDEADHEAD" ]; then
+        echo "ERRORE: CREWPENALTY richiede CREWDEADHEAD, la rete si carica di li'" >&2
+        exit 1
+    fi
+    CREWFLAGS+=(-Dcrew.deadheadpenalty="$CREWPENALTY")
+fi
 # Cartella dei TSV convertiti, relativa alla root del repo (primo argomento).
-TSVDIR=${1:-Final_Rescheduled_Instances}
+TSVDIR=${1:?ERRORE: primo argomento obbligatorio, cartella dei TSV dello stadio F0}
 
 # Quale istanza tocca a questo task dell'array. Due modi:
 #
@@ -121,6 +135,7 @@ instance : $ID
 tsv      : $TSV
 commit   : $COMMIT
 deadhead : $([ -n "$CREWDEADHEAD" ] && echo "$CREWDEADHEAD min, rete $CREWNETWORK" || echo "nessun limite")
+penalty  : $([ -n "$CREWPENALTY" ] && echo "$CREWPENALTY per minuto di rientro" || echo "nessuna, costo piatto")
 job      : $SLURM_ARRAY_JOB_ID / task $SLURM_ARRAY_TASK_ID
 node     : $SLURMD_NODENAME
 started  : $(date -Is)

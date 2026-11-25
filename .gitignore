@@ -1,51 +1,12 @@
-"*" 
-"!**/*.py" 
-"!.gitignore" 
-
-railwayrescheduling/
-
-# --- Ambiente di Sviluppo e Cache ---
-.venv/
-# venv Linux creato sul cluster: quello committato sopra e' macOS e li' non parte
-.venv-linux/
 __pycache__/
 *.pyc
-.vscode/
+.venv/
 .DS_Store
-*.code-workspace
-
-# --- File di Input / Eseguibili Pesanti ---
-cplex
-my_job.slurm
-output.log
-Terminal_input.sh
-
-# --- Build Java: bytecode rigenerabile con javac, non va versionato ---
-# bin/ e out/ sono i vecchi output (pre-riorganizzazione), java/build/ il nuovo.
-bin/
-out/
+/runs/
+/output/
+/IntegratedRescheduling/
 java/build/
-
-# --- Output delle run su cluster ---
-runs/
 logs/
-
-# --- Directory generate in automatico (NON caricarle) ---
-output/
-test_greedy/
-_generated_solutions/
-
-# --- File compressi inutili (visto che carichiamo le cartelle estratte) ---
-*.zip
-
-# --- Esclusioni specifiche per ripulire i dati ---
-# Rimuove il percorso Windows errato e i modelli .lp intermedi
-"C:\\*"
-results/
-results_experiments/
-
-# Rimuove i file duplicati o temporanei nelle cartelle dati (*.txt e doppi .tsv)
-Final_Rescheduled_Instances/*(R).tsv
-Final_Rescheduled_ID_Mappings/*-Transformed-Transformed-*.tsv.tsv
-RollingStockSolution_Greedy_*.txt
-
+/debug_forced_locos/
+java/cap180/crew_deadhead_length/
+java/results0709/crew_deadhead_length/

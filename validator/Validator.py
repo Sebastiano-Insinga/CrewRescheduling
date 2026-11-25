@@ -3,9 +3,9 @@ import argparse
 
 import os
 
-import IntegratedRescheduling as IR
+from rescheduling import IntegratedRescheduling as IR
 import RunConfig
-from IntegratedRescheduling import setup_instance
+from rescheduling.IntegratedRescheduling import setup_instance
 from validator.Helper import describe
 from validator.Solution import Solution, TRIP, LOCO_DEADHEAD, CREW_DEADHEAD
 from validator.CrewChecks import compute_crew_violations

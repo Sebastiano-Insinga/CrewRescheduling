@@ -125,6 +125,16 @@ public final class CrewDeadhead
 		return value <= limit;
 	}
 
+	public int cost(int endStation, int startStation, double penalty)
+	{
+		double value = minutesBetween(endStation, startStation);
+		if (Double.isNaN(value))
+		{
+			value = limit;
+		}
+		return (int) Math.round(penalty * value);
+	}
+
 	public double minutesBetween(int endStation, int startStation)
 	{
 		int i = dense(endStation);

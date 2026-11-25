@@ -1,0 +1,909 @@
+from __future__ import annotations
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+
+import csv
+import glob
+import math
+import os
+import time
+from dataclasses import dataclass
+from datetime import datetime
+from readers.TimeFormat import instance_datetime
+
+from rescheduling.RollingStockGreedy import load_data, CppMT19937, count_canceled, get_deadhead_info
+from rescheduling.crew_greedy import _required_break_length
+
+from network.RailwayNetwork import RailwayNetwork
+from rescheduling.DriverStatusMapper import DriverStatusMapper
+from rescheduling.LocoChecker import LocoChecker
+from rescheduling.TaskFeasibilityChecker import TaskFeasibilityChecker
+from rescheduling.CrewDeadhead import duty_minutes
+from rescheduling.CrewState import CrewState
+
+import RunConfig
+
+# Nessun default: i percorsi arrivano dalla riga di comando, via RunConfig.
+# Un default sbagliato qui non dava errore, dava risultati sbagliati in
+# silenzio, ed e' il motivo per cui un intero giro di esperimenti e' stato
+# buttato. A None si rompe forte e subito.
+#
+# Attenzione a come si leggono: chi fa "from IntegratedRescheduling import
+# INSTANCE_DIR" ne fotografa il valore all'import, quindi restera' None per
+# sempre. Va usato "import IntegratedRescheduling as IR" e letto IR.INSTANCE_DIR
+# sul punto d'uso, dopo che RunConfig le ha impostate.
+INSTANCE_DIR       = None
+NETWORK_FILE       = None
+SHORTESTPATHS_FILE = None
+CREW_SCHEDULE_DIR  = None
+CREW_TASK_DIR      = None
+ID_MAPPING_DIR     = None
+
+BASELINE_DAY = datetime(2018, 9, 10)
+
+CSV_COLUMNS = ['instance_id', 'total_trip', 'n_cancel',
+               'total_deadhead_length [m]', 'computation_time [s]']
+
+
+@dataclass
+class SolveResult:
+    solution:        list
+    existing_duties: dict
+    duty_breaks:     dict
+    loco_duties:     dict
+    canceled_tasks:  list
+    all_candidates:  dict
+    dh_stats:        dict
+    forced_failures: list
+    timings:         dict = None
+    decision_log:    list = None
+    rng_checkpoints: dict = None
+
+
+
+def epoch_to_minutes(epoch_seconds: float) -> int:
+    dt   = instance_datetime(epoch_seconds)
+    diff = dt - BASELINE_DAY
+    return diff.days * 1440 + math.ceil(dt.hour * 60 + dt.minute + dt.second / 60.0)
+
+
+def loco_duties_from_excel(excel_path: str, instance_id: str = None) -> tuple:
+    """Read an Excel solution file (trips + summary sheets) and build loco_duties
+    in the format expected by plot_loco_crew_gantt.
+
+    Returns (loco_duties, metrics, disruption_start_min).
+    disruption_start_min is loaded from the instance JSON when instance_id is given
+    (aligns the time axis with other Gantt charts); falls back to 0.
+    Rows with NaN departure (dh_start_* entries) use arrival as departure.
+    Rows with NaN crew are assigned driver id 'unknown'.
+    """
+    import json as _json
+    import pandas as pd
+
+    xl = pd.ExcelFile(excel_path)
+    df = xl.parse('trips')
+
+    disruption_start_min = 0
+    disruption_end_min   = None
+    if instance_id:
+        inst_path = os.path.join(INSTANCE_DIR, f"{instance_id}.json")
+        try:
+            with open(inst_path) as f:
+                inst = _json.load(f)
+            disruption_start_min = epoch_to_minutes(inst['disruption_start'])
+            disruption_end_min   = epoch_to_minutes(inst['disruption_end'])
+        except (FileNotFoundError, KeyError):
+            pass
+
+    loco_duties: dict = {}
+    for _, row in df.iterrows():
+        arr_unix = row['Arrival Time (unix)']
+        if pd.isna(arr_unix):
+            continue
+
+        dep_unix = row['Departure Time (unix)']
+        arr = epoch_to_minutes(arr_unix)
+        dep = epoch_to_minutes(dep_unix) if not pd.isna(dep_unix) else arr
+
+        loco_id   = int(row['Locomotive'])
+        origin    = int(row['Origin Station ID'])
+        dest      = int(row['Destination Station ID'])
+        crew = row['Crew Member']
+        if pd.isna(crew):
+            continue
+        driver_id = str(crew)
+
+        if row['Trip Type'] == 'productive':
+            try:
+                rs_trip_id = int(row['Trip ID'])
+            except (ValueError, TypeError):
+                rs_trip_id = str(row['Trip ID'])
+            task_type = 'trip'
+        else:
+            rs_trip_id = None
+            task_type  = 'loco_deadhead'
+
+        task = {
+            'type':        task_type,
+            'origin':      origin,
+            'destination': dest,
+            'departure':   dep,
+            'arrival':     arr,
+            'rs_trip_id':  rs_trip_id,
+        }
+        loco_duties.setdefault(loco_id, []).append((task, driver_id))
+
+    for loco_id in loco_duties:
+        loco_duties[loco_id].sort(key=lambda x: x[0]['departure'])
+
+    metrics = None
+    if 'summary' in xl.sheet_names:
+        sm = xl.parse('summary').set_index('metric')['value'].to_dict()
+        n_prod   = int(sm.get('n_productive_total', sm.get('n_productive', 0)))
+        n_canc   = int(sm.get('n_canceled', 0))
+        metrics  = {
+            'total_trips':   n_prod,
+            'cancellations': n_canc,
+        }
+        if disruption_end_min is not None:
+            metrics['disruption_start_min'] = disruption_start_min
+            metrics['disruption_end_min']   = disruption_end_min
+
+    return loco_duties, metrics, disruption_start_min
+
+
+def deadhead_priority_pool(dh_by_key: dict, original_keys) -> dict:
+    """Tiered candidate pool mirroring the selection rule of VNS
+    calculateInitialSolution_deadhead. dh_by_key: {key: deadhead_minutes}.
+    Tiers: originally-assigned with dh==0 → originally-assigned → all."""
+    original = {k: dh for k, dh in dh_by_key.items() if k in original_keys}
+    return ({k: dh for k, dh in original.items() if dh == 0}
+            or original
+            or dh_by_key)
+
+
+
+
+class IntegratedRescheduler:
+    """
+    Joint RS + Crew rescheduling loop.
+
+    For each trip finds all (loco, driver_chain) pairs that are simultaneously
+    feasible, selects one via CppMT19937, and commits both assignments.
+    """
+    FORCED_ALTERNATIVE = object()
+
+    def __init__(
+        self,
+        checker_loco: LocoChecker,
+        checker_crew: TaskFeasibilityChecker,
+        mapper:       DriverStatusMapper,
+        net:          RailwayNetwork,
+        max_time_without_break: int = 360,
+    ):
+        self._checker_loco         = checker_loco
+        self._checker_crew         = checker_crew
+        self._mapper               = mapper
+        self._net                  = net
+        self._max_time_without_break = max_time_without_break
+
+        # RS trip_id → crew task_id (regular tasks only)
+        self._trip_to_task_id: dict[int, int] = {
+            v['train_section']: k
+            for k, v in mapper.id_mapping.items()
+            if v.get('task_type') == 'regular'
+        }
+    @staticmethod
+    def _same_pair(a, b):
+        return (a['loco'] == b['loco']
+                and [d for _, d in a['driver_chain']] == [d for _, d in b['driver_chain']])
+
+    def resolve_forced(self, forced, trip_id, locos, crew_state, rng, is_first, soft_forced=None):
+        entry=forced[trip_id]
+        fail_stats={}
+        failed = False
+        soft_forced = soft_forced or {}
+
+        if entry is not self.FORCED_ALTERNATIVE and is_first:
+            pairs = [entry]
+        else:
+            pairs = []
+            new_pairs, fail_stats = self._candidate_pairs(trip_id, locos, crew_state, rng)
+            alternatives = new_pairs[1:]
+            preferred = soft_forced.get(trip_id)
+            kept = [p for p in alternatives if preferred and self._same_pair(p, preferred)]
+            if kept:
+                rng.uniform_int(0, len(alternatives)-1)
+                pairs = kept[:1]
+            elif alternatives:
+                pairs= [alternatives[rng.uniform_int(0, len(alternatives)-1)]]
+                #print(f"Pairs found for {trip_id}: {pairs}")
+            elif trip_id in soft_forced:
+                pairs = new_pairs[:1]
+            else:
+                #print(f"Failed shake on {trip_id}")
+                failed = True
+
+                                              
+        return pairs, fail_stats, failed
+
+    def _commit_pair(self, trip_id, chosen, solution, loco_duties, crew_state, task_id):
+        maint = self._checker_loco.commit(trip_id, chosen['loco'])
+        solution.append({
+            'id_trip':    trip_id,
+            'locomotive': chosen['loco'],
+            'maintenance_at_departure':   'true' if maint['at_departure']   else 'false',
+            'maintenance_at_destination': 'true' if maint['at_destination'] else 'false',
+        })
+        for task, driver_id in chosen['driver_chain']:
+            t_tagged = dict(task)
+            if task.get('type') == 'trip':
+                t_tagged['rs_trip_id'] = trip_id
+            loco_duties.setdefault(chosen['loco'], []).append((t_tagged, driver_id))
+            t = dict(task)
+            t['id'] = task_id[0]
+            task_id[0] += 1
+            # The chain carries no deadhead, so the journey opening the duty is
+            # recomputed here. It only matters on the driver's first task.
+            dh = 0.0
+            if crew_state.duty_start(driver_id) is None:
+                dh = self._net.deadhead_minutes(
+                    crew_state.station(driver_id), t['origin'],
+                    crew_state.available_at(driver_id), t['departure'])
+                if dh == float('inf'):
+                    dh = 0.0
+            crew_state.apply_task(driver_id, t, dh)
+
+    def _duties_and_breaks(self, crew_state):
+        existing_duties = {d: crew_state.tasks(d)
+                           for d in crew_state.driver_ids()
+                           if crew_state.tasks(d)}
+        return existing_duties, self._plan_breaks(existing_duties)
+
+    def _cancel_trip(self, trip_id, fail_stats, solution, canceled_tasks):
+        solution.append(self._canceled(trip_id))
+        ct = dict(self._checker_loco.trip_task(trip_id))
+        ct['rs_trip_id']   = trip_id
+        ct['cancel_stats'] = fail_stats
+        canceled_tasks.append(ct)
+
+    def run(self, seed: int = 42, forced: dict = None,
+            abort_on_forced_failure: bool = False,
+            soft_forced: dict = None,
+            replay: tuple = None,
+            rng_checkpoint_every: int = 0,
+            rescue_pass: bool = False) -> tuple[list, dict, dict, dict]:
+        """
+        Returns (solution, existing_duties, duty_breaks, loco_duties, canceled_tasks, all_candidates).
+        loco_duties: {loco_id: [(task, driver_id), ...]} — trips + loco_deadheads only.
+        canceled_tasks: list of trip task dicts (with 'rs_trip_id' and 'cancel_stats')
+        for trips that found no feasible (loco, driver_chain) pair.
+        forced: {trip_id: pair} — pair from a previous all_candidates to force instead of searching.
+        all_candidates: {trip_id: [pairs]} — all feasible pairs found per trip.
+        """
+        rng        = CppMT19937(seed)
+        crew_state = CrewState(self._mapper.driver_status)
+        task_id    = [1]
+        solution   = []
+        loco_duties = {}
+        canceled_tasks = []
+        all_candidates = {}
+        forced = forced or {}
+        seen_forced = False
+        forced_failures = []
+        order = self._checker_loco.trip_order
+        decision_log = []
+        rng_checkpoints = {}
+        start = 0
+        if replay is not None:
+            prev_log, prev_checkpoints, resume_at = replay
+            start = max((i for i in prev_checkpoints if i <= resume_at), default=0)
+            for trip_id, pairs, fail_stats in prev_log[:start]:
+                all_candidates[trip_id] = pairs
+                if trip_id in forced:
+                    seen_forced = True
+                if pairs:
+                    self._commit_pair(trip_id, pairs[0], solution, loco_duties, crew_state, task_id)
+                else:
+                    self._cancel_trip(trip_id, fail_stats, solution, canceled_tasks)
+            decision_log = list(prev_log[:start])
+            rng_checkpoints = {i: c for i, c in prev_checkpoints.items() if i <= start}
+            if start:
+                mt, index = prev_checkpoints[start]
+                rng._mt = list(mt)
+                rng._index = index
+        self.decision_log = decision_log
+        self.rng_checkpoints = rng_checkpoints
+
+        for idx in range(start, len(order)):
+            trip_id = order[idx]
+            if rng_checkpoint_every and idx % rng_checkpoint_every == 0:
+                rng_checkpoints[idx] = (tuple(rng._mt), rng._index)
+            locos = self._checker_loco.candidates(trip_id)
+            if trip_id in forced:
+                pairs, fail_stats,failed = self.resolve_forced(forced,trip_id, locos, crew_state, rng, is_first = not seen_forced,
+                                                               soft_forced=soft_forced)
+                seen_forced= True
+                if failed:
+                    forced_failures.append(trip_id)
+                    if abort_on_forced_failure:
+                        return solution, {}, {}, loco_duties, canceled_tasks, all_candidates, forced_failures
+            else:
+                pairs, fail_stats = self._candidate_pairs(trip_id, locos, crew_state, rng)
+            all_candidates[trip_id] = pairs
+            decision_log.append((trip_id, pairs, fail_stats))
+
+            if not pairs:
+                self._cancel_trip(trip_id, fail_stats, solution, canceled_tasks)
+                continue
+
+            self._commit_pair(trip_id, pairs[0], solution, loco_duties, crew_state, task_id)
+
+        existing_duties, duty_breaks = self._duties_and_breaks(crew_state)
+
+        # Spento per default: su S01-S12, S14, S17, S19 recupera 1 trip su 2.263
+        # cancellazioni e costa il 10-13% del tempo speso nella ricerca dei candidati
+        # (10,3 s su S19). Ritenta i cancellati contro lo stato finale, piu' saturo di
+        # quando il trip fu provato, quindi riesce solo quando l'estrazione casuale
+        # della catena di driver va diversamente: e' un re-roll, non una riparazione.
+        # Resta disponibile per riprodurre le batch fino al 14/10, prodotte con il
+        # rescue attivo. La riga 'canceled' del trip recuperato non viene rimossa da
+        # solution, quindi con il rescue attivo count_canceled(solution) sovrastima.
+        if rescue_pass:
+            changed=True
+            while changed:
+                changed=False
+                still_canceled=[]
+                for ct in canceled_tasks:
+                    trip_id=ct["rs_trip_id"]
+                    locos=self._checker_loco.candidates(trip_id)
+                    pairs,_=self._candidate_pairs(trip_id, locos, crew_state, rng)
+                    if pairs:
+                        self._commit_pair(trip_id, pairs[0], solution, loco_duties, crew_state, task_id)
+                        changed=True
+                    else:
+                        still_canceled.append(ct)
+                canceled_tasks=still_canceled
+            existing_duties, duty_breaks = self._duties_and_breaks(crew_state)
+
+        # Le manutenzioni vengono ripianificate da assign_maintenance_all a ogni
+        # commit successivo: il flag registrato quando il trip fu assegnato
+        # invecchia, e una manutenzione aggiunta piu' tardi a un trip gia'
+        # committato non compare da nessuna parte. Riscriverli dal piano finale,
+        # come gia' si fa per duty_breaks.
+        plan = self._checker_loco.maintenance_plan
+        for e in solution:
+            if e['locomotive'] == 'canceled':
+                continue
+            m = plan.get(e['id_trip'], 0)
+            e['maintenance_at_departure']   = 'true' if m == 1 else 'false'
+            e['maintenance_at_destination'] = 'true' if m == 2 else 'false'
+
+        return solution, existing_duties, duty_breaks, loco_duties, canceled_tasks, all_candidates, forced_failures
+
+ 
+    # ------------------------------------------------------------------
+    # Candidate pair search
+    # ------------------------------------------------------------------
+
+    def _candidate_pairs(self, trip_id: int, locos: list,
+                         crew_state: CrewState, rng: CppMT19937) -> list[dict]:
+        """
+        For each candidate loco, try to find a driver chain covering all tasks
+        (deadhead segments + trip task). Returns (pairs, fail_stats) where
+        pairs is a list of {'loco', 'driver_chain'} and fail_stats counts why
+        candidate locos were rejected. crew_state is fully restored on return.
+        """
+        trip_task = self._checker_loco.trip_task(trip_id)
+
+        pairs = []
+        fail_stats = {'n_candidates': len(locos), 'unreachable': 0, 'no_chain': 0}
+        for loco_id in locos:
+            dh_tasks  = self._checker_loco.deadhead_tasks(
+                loco_id, trip_id, epoch_to_minutes, self._max_time_without_break
+            )
+            if dh_tasks is None:  # loco cannot reach trip — candidates() should have excluded it
+                fail_stats['unreachable'] += 1
+                continue
+            task_list = dh_tasks + [trip_task]
+
+            snap  = crew_state.snapshot()
+            chain,n_feasible = self._find_driver_chain(task_list, trip_id, crew_state, rng,
+                                             loco_id=loco_id)
+            crew_state.restore(snap)
+
+            if chain is not None:
+                pairs.append({
+                    'loco':         loco_id,
+                    'driver_chain': chain,
+                    'n_feasible':   n_feasible,
+                    'drivers':      list({driver_id for _, driver_id in chain}),
+                })
+            else:
+                fail_stats['no_chain'] += 1
+            pairs.sort(key=lambda p:p['n_feasible'])
+
+        return pairs, fail_stats
+
+    def _find_driver_chain(self, task_list: list, trip_id: int,
+                            crew_state: CrewState, rng: CppMT19937,
+                            loco_id: int = None) -> list | None:
+        """
+        Assign a driver to each task in task_list.
+        Modifies crew_state tentatively — caller restores if pair not chosen.
+        Returns list[(task, driver_id)] or None if any task is uncoverable.
+        """
+        chain   = []
+        applied = []
+
+        for task_idx, task in enumerate(task_list):
+            tid      = self._trip_to_task_id.get(trip_id) if task.get('type') == 'trip' else None
+            # Idle gap after this task, before the next one in the chain: also
+            # a valid break slot for the driver who covers only this task.
+            if task.get('type') == 'loco_deadhead' and task_idx + 1 < len(task_list):
+                next_gap = task_list[task_idx + 1]['departure'] - task['arrival']
+            else:
+                next_gap = None
+            feasible = {}  # driver_id -> deadhead minutes, in driver_status order
+            for d_id in self._mapper.driver_status:
+                ok, dh, _ = self._checker_crew.evaluate(
+                    task, tid, d_id,
+                    crew_state.station(d_id),
+                    crew_state.available_at(d_id),
+                    crew_state.duty_start(d_id),
+                    crew_state.tasks(d_id),
+                    next_gap_minutes=next_gap,
+                )
+                if ok:
+                    feasible[d_id] = dh
+            # Un file CSV per (loco, trip, task): 57k file su S19. Riattivare
+            # solo per ispezionare una singola istanza.
+            # export_feasible_drivers(list(feasible), trip_id, crew_state, task, task_idx, loco_id)
+            if not feasible:
+                for d_id, prev in reversed(applied):
+                    crew_state.restore_driver(d_id, prev)
+                return None, 0
+
+            driver_id = self._select_driver(feasible, task, tid, rng)
+            applied.append((driver_id, crew_state.snapshot_driver(driver_id)))
+            crew_state.apply_task(driver_id, task, feasible[driver_id])
+            chain.append((task, driver_id))
+        n_feasible=len(feasible)
+
+        return chain, n_feasible
+
+    def _select_driver(self, feasible: dict, task: dict, tid: int | None,
+                       rng: CppMT19937) -> int:
+        """VNS-aligned tiers via deadhead_priority_pool:
+        original driver with dh==0 → original driver → random among all feasible.
+        feasible: {driver_id: deadhead_minutes}.
+        Original match by task id (tid) when available, else by
+        (origin, destination, departure) fields."""
+        orig_sched = self._mapper.original_schedule
+        original_keys = set()
+        for d_id in feasible:
+            for orig in orig_sched.get(d_id, []):
+                if (tid is not None and orig.get('id') == tid) or (
+                        orig.get('origin')      == task.get('origin') and
+                        orig.get('destination') == task.get('destination') and
+                        orig.get('departure')   == task.get('departure')):
+                    original_keys.add(d_id)
+                    break
+        pool = deadhead_priority_pool(feasible, original_keys)
+        if original_keys:  # pool is an original tier: deterministic min-dh
+            return min(pool, key=lambda d: pool[d])
+        keys = list(pool)
+        return keys[rng.uniform_int(0, len(keys) - 1)]
+
+    # ------------------------------------------------------------------
+    # Break planning (Phase 3)
+    # ------------------------------------------------------------------
+
+    def _plan_breaks(self, existing_duties: dict) -> dict:
+        ds = self._mapper.driver_status
+        duty_breaks = {}
+        for duty_id, duty in existing_duties.items():
+            if not duty:
+                duty_breaks[duty_id] = (-45, 0)
+                continue
+            # Stessa primitiva del validatore: chi era gia' in servizio porta
+            # con se' i minuti lavorati, chi non lo era apre il turno quando
+            # parte verso il primo task, perche' quel viaggio e' servizio.
+            duty_length = duty_minutes(self._net, ds[duty_id],
+                                       duty[0]['origin'], duty[0]['departure'],
+                                       duty[-1]['arrival'])
+            b30 = ds[duty_id]['break30done']
+            b45 = ds[duty_id]['break45done']
+            base = _required_break_length(duty_length)
+            if b45 or (b30 and duty_length <= 480):
+                required = 0
+            elif b30:
+                required = max(0, base - 30)
+            else:
+                required = base
+            if required == 0:
+                duty_breaks[duty_id] = (-45, 0)
+                continue
+            # A gap is worth only what is left once the repositioning it has to
+            # pay for is subtracted: the driver cannot rest and travel at the
+            # same time. Keep looking until a gap survives that subtraction.
+            slot = None
+            for a, b in zip(duty, duty[1:]):
+                deadhead = self._net.deadhead_minutes(
+                    a['destination'], b['origin'], a['arrival'], b['departure'])
+                if b['departure'] - a['arrival'] - deadhead >= required:
+                    slot = (a['arrival'], a['arrival'] + required)
+                    break
+
+            # A driver already on duty is idle from available_at_time to the
+            # first task, and idle_windows() offers that window too: without it
+            # a duty with a single task has no gap at all and falls through to
+            # the post-duty branch, which the cap rejects near 720 min.
+            if slot is None and ds[duty_id]['duty_length'] > 0:
+                avail_at = ds[duty_id]['available_at_time']
+                first    = duty[0]
+                travel   = self._net.deadhead_minutes(
+                    ds[duty_id]['available_from_station'], first['origin'],
+                    avail_at, first['departure'])
+                if first['departure'] - avail_at - travel >= required:
+                    slot = (avail_at, avail_at + required)
+
+            if slot is None and duty_length + required <= self._checker_crew.max_duty_length:
+                # No usable gap — the break falls in the idle time after the
+                # duty's last task, which isn't represented as a task here.
+                # Legal only while the duty stays within its cap. Matches the
+                # lookahead accepted in TaskFeasibilityChecker.evaluate() via
+                # next_gap_minutes.
+                last_arrival = duty[-1]['arrival']
+                slot = (last_arrival, last_arrival + required)
+
+            # None means no feasible slot at all — reported by solve_instance
+            duty_breaks[duty_id] = slot
+        return duty_breaks
+
+    @staticmethod
+    def _canceled(trip_id: int) -> dict:
+        return {'id_trip': trip_id, 'locomotive': 'canceled',
+                'maintenance_at_departure': 'false',
+                'maintenance_at_destination': 'false'}
+
+
+
+            
+
+
+def check_deadhead(canceled_tasks, existing_duties, net):
+    seen = set()
+    deadhead_couple = []
+    for ct in canceled_tasks:
+        ct_origin = ct["origin"]
+        ct_dep = ct["departure"]
+        for tasks in existing_duties.values():
+            for t in tasks:
+                s_dest = t["destination"]
+                if t["arrival"] > ct_dep:
+                    continue
+                key = (ct["rs_trip_id"], s_dest, ct_origin)
+                if key in seen:
+                    continue
+                seen.add(key)
+                dh_min = net.deadhead_minutes(s_dest, ct_origin, t["arrival"], ct_dep, 57.0)
+                if dh_min == float('inf'):
+                    continue
+                entry = net.sp_raw.get(str(s_dest), {}).get(str(ct_origin))
+                if entry:
+                    deadhead_couple.append({
+                        "canceled_trip": ct["rs_trip_id"],
+                        "from_station":  s_dest,
+                        "to_station":    ct_origin,
+                        "dh_meters":     entry["weight"] / 1000,
+                    })
+    out_dir = os.path.join('IntegratedRescheduling', 'deadhead_couple')
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, 'deadhead_couples.csv')
+
+    with open(out_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['canceled_trip', 'from_station', 'to_station', 'dh_meters'])
+        writer.writeheader()
+        writer.writerows(deadhead_couple)
+    return deadhead_couple
+
+def setup_instance(instance_id: str) -> tuple:
+    instance_file      = os.path.join(INSTANCE_DIR,      f"{instance_id}.json")
+    crew_schedule_file = os.path.join(CREW_SCHEDULE_DIR, f"Transformed-{instance_id}_sol.txt")
+    crew_task_file     = os.path.join(CREW_TASK_DIR,     f"Transformed-{instance_id}.tsv")
+    id_mapping_file    = os.path.join(ID_MAPPING_DIR,    f"ID-Mapping-Transformed-{instance_id}.tsv")
+
+    for f in [instance_file, crew_schedule_file, crew_task_file, id_mapping_file]:
+        if not os.path.exists(f):
+            raise FileNotFoundError(f"Missing: {f}")
+
+    instance, _, _ = load_data(instance_file, NETWORK_FILE, SHORTESTPATHS_FILE)
+    disruption_start = epoch_to_minutes(instance['disruption_start'])
+    disruption_end   = epoch_to_minutes(instance['disruption_end'])
+
+    net = RailwayNetwork(NETWORK_FILE, SHORTESTPATHS_FILE)
+    net.build_for_instance(instance, disruption_start, disruption_end)
+
+    mapper = DriverStatusMapper(crew_schedule_file, crew_task_file,
+                                id_mapping_file, instance_file)
+    # export_status_driver(mapper) era qui: nessuno legge il TSV prodotto, e
+    # setup_instance viene chiamata anche dal validatore e dal VNS, che si
+    # ritrovavano a riscrivere il file a ogni run. Chiamarla a mano se serve.
+    return instance, mapper, net, disruption_start, disruption_end
+
+
+def solve_instance(instance, mapper, net, disruption_start, disruption_end,
+                   seed: int = 42, forced: dict = None,
+                   ignore_maintenance: bool = False,
+                   abort_on_forced_failure: bool = False,
+                   soft_forced: dict = None,
+                   replay: tuple = None,
+                   rng_checkpoint_every: int = 0,
+                   rescue_pass: bool = False):
+    checker_loco = LocoChecker(instance, net, ignore_maintenance=ignore_maintenance)
+    checker_crew = TaskFeasibilityChecker(net, mapper, max_duty_length=720)
+
+    rescheduler = IntegratedRescheduler(checker_loco, checker_crew, mapper, net)
+
+    # Solo l'algoritmo entra nel tempo di calcolo: i deadhead sono metriche
+    # ex-post, non rientrano in nessuna funzione obiettivo.
+    _t0 = time.time()
+    solution, existing_duties, duty_breaks, loco_duties, canceled_tasks, all_candidates, forced_failures = rescheduler.run(
+        seed=seed, forced=forced, abort_on_forced_failure=abort_on_forced_failure,
+        soft_forced=soft_forced, replay=replay, rng_checkpoint_every=rng_checkpoint_every,
+        rescue_pass=rescue_pass)
+    solve_sec = round(time.time() - _t0, 3)
+
+    if abort_on_forced_failure and forced_failures:
+        return SolveResult(
+            solution=        solution,
+            existing_duties= existing_duties,
+            duty_breaks=     duty_breaks,
+            loco_duties=     loco_duties,
+            canceled_tasks=  canceled_tasks,
+            all_candidates=  all_candidates,
+            dh_stats={
+                'loco_dh_m':            0,
+                'crew_dh_m':            0,
+                'disruption_start_min': disruption_start,
+                'disruption_end_min':   disruption_end,
+            },
+            forced_failures = forced_failures,
+            timings={'solve_sec': solve_sec, 'metrics_sec': 0.0},
+            decision_log=    rescheduler.decision_log,
+            rng_checkpoints= rescheduler.rng_checkpoints,
+        )
+
+    _t0 = time.time()
+    check_deadhead(canceled_tasks, existing_duties, net)
+
+    no_slot = [d for d, s in duty_breaks.items() if s is None]
+    #print(f"[BreakCheck] duties with no feasible break slot: {len(no_slot)}/{len(duty_breaks)} — {no_slot}")
+
+    rs_canceled = count_canceled(solution)
+    rs_covered  = len(solution) - rs_canceled
+    print(f"[IntegratedRescheduler] trips={len(solution)} covered={rs_covered} "
+          f"canceled={rs_canceled} duties={len(existing_duties)}")
+
+    loco_dh_m = sum(
+        net.sp_raw.get(str(task['origin']), {}).get(str(task['destination']), {}).get('weight', 0)
+        for segs in loco_duties.values()
+        for task, _ in segs
+        if task.get('type') == 'loco_deadhead'
+    )
+
+    crew_dh_m = 0
+    for driver_id, tasks in existing_duties.items():
+        cur = mapper.driver_status[driver_id]['available_from_station']
+        for task in sorted(tasks, key=lambda t: t['departure']):
+            if cur != task['origin']:
+                crew_dh_m += net.sp_raw.get(str(cur), {}).get(str(task['origin']), {}).get('weight', 0)
+            cur = task['destination']
+
+    metrics_sec = round(time.time() - _t0, 3)
+
+    return SolveResult(
+        solution=        solution,
+        existing_duties= existing_duties,
+        duty_breaks=     duty_breaks,
+        loco_duties=     loco_duties,
+        canceled_tasks=  canceled_tasks,
+        all_candidates=  all_candidates,
+        dh_stats={
+            'loco_dh_m':            loco_dh_m,
+            'crew_dh_m':            crew_dh_m,
+            'disruption_start_min': disruption_start,
+            'disruption_end_min':   disruption_end,
+        },
+        forced_failures = forced_failures,
+        timings={'solve_sec': solve_sec, 'metrics_sec': metrics_sec},
+        decision_log=    rescheduler.decision_log,
+        rng_checkpoints= rescheduler.rng_checkpoints,
+    )
+
+
+def run_instance(instance_id: str, seed: int = 42, ignore_maintenance: bool = False,
+                 rescue_pass: bool = False):
+    _t0 = time.time()
+    instance, mapper, net, disruption_start, disruption_end = setup_instance(instance_id)
+    setup_sec = round(time.time() - _t0, 3)
+    r = solve_instance(instance, mapper, net, disruption_start, disruption_end, seed,
+                       ignore_maintenance=ignore_maintenance, rescue_pass=rescue_pass)
+    r.timings['setup_sec'] = setup_sec
+    return r
+       
+
+
+def export_status_driver(mapper: DriverStatusMapper, output_path: str = "IntegratedRescheduling/driver_status_initial.tsv") -> None:
+    os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
+    fields = ['driver_id', 'available_from_station', 'available_at_time']
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fields, delimiter='\t', extrasaction='ignore')
+        writer.writeheader()
+        for driver_id, status in sorted(mapper.driver_status.items()):
+            writer.writerow({'driver_id':              driver_id,
+                             'available_from_station': status.get('available_from_station'),
+                             'available_at_time':      status.get('available_at_time')})
+    print(f"[DriverStatus] {len(mapper.driver_status)} drivers → {output_path}")
+
+
+def export_to_csv(results, output_path):
+    os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
+    file_exists = os.path.isfile(output_path)
+    with open(output_path, 'a', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS, extrasaction='ignore')
+        if not file_exists:
+            writer.writeheader()
+        for r in results:
+            if 'error' not in r:
+                writer.writerow(r)
+    print(f"[CSV] appended {len([r for r in results if 'error' not in r])} rows → {output_path}")
+
+
+if __name__ == '__main__':
+    import argparse, time
+    from datetime import datetime as _dt
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', nargs='+', metavar='S01', dest='instance_ids',
+                        help='Instance IDs to run (default: all S*.json in Instances/single_type/)')
+    parser.add_argument('--xaxis','-x', choices=['index', 'station', 'time'], default='index',
+                        help='X-axis mode: index (default), origin station, or minutes from disruption start')
+    parser.add_argument('--seed', type=int, default=42)
+    parser.add_argument('--no-maintenance', action='store_true', dest='no_maintenance',
+                        help='Disattiva la manutenzione: nessun vincolo sui km, nessuna '
+                             'manutenzione pianificata, flag del piano originale ignorati. '
+                             'Finisce nel run_info della soluzione esportata.')
+    parser.add_argument('--canc-per-trip', action='store_true',
+                        help='Gantt: one row per canceled trip instead of packed CANC-n rows')
+    parser.add_argument('--excel', metavar='FILE.xlsx',
+                        help='Visualize an external Excel solution (skips model run)')
+    parser.add_argument('--export-solution', metavar='DIR', dest='export_solution',
+                        help='Directory dove salvare la soluzione in formato validatore')
+    parser.add_argument('--gantt', action='store_true',
+                        help='Genera il Gantt loco/crew in IntegratedRescheduling/visualize '
+                             '(solo con una sola istanza)')
+    parser.add_argument('--rescue-pass', action='store_true', dest='rescue_pass',
+                        help='Riattiva la passata di recupero dei trip cancellati dopo lo sweep. '
+                             'Spenta per default: recupera 1 trip su 2.263 cancellazioni e costa il '
+                             '10-13%% del tempo nella ricerca dei candidati. Serve a riprodurre le '
+                             'batch fino al 14/10')
+    RunConfig.add_path_args(parser)
+    args = parser.parse_args()
+
+    # Prima di qualunque lettura: le globali di questo modulo valgono None
+    # finche' RunConfig non le riempie. loco_duties_from_excel() usa gia'
+    # INSTANCE_DIR, quindi la risoluzione sta sopra anche al ramo --excel.
+    import sys as _sys
+    run_paths = RunConfig.resolve(args, parser)
+    run_paths.apply_to(_sys.modules[__name__])
+    print(f"[RunConfig] chain={run_paths.chain_name} instances={run_paths.instance_dir}")
+
+    ts = _dt.now().strftime('%Y%m%d_%H%M%S')
+
+    if args.excel:
+        from viz.LocoCrewViz import plot_loco_crew_gantt
+        iid = args.instance_ids[0] if args.instance_ids else None
+        loco_duties, metrics, disruption_start_min = loco_duties_from_excel(args.excel, iid)
+        label       = iid or os.path.splitext(os.path.basename(args.excel))[0]
+        output_path = os.path.join('IntegratedRescheduling/visualize', f"{label}_ext_{ts}.html")
+        plot_loco_crew_gantt(
+            loco_duties,
+            title=f"External solution — {label}",
+            output_html=output_path,
+            metrics=metrics,
+            xaxis=args.xaxis,
+            disruption_start_min=disruption_start_min,
+        )
+        import sys; sys.exit(0)
+
+    if args.instance_ids:
+        instance_ids = args.instance_ids
+    else:
+        all_files    = sorted(glob.glob(os.path.join(INSTANCE_DIR, "S*.json")))
+        instance_ids = [os.path.basename(f).replace('.json', '') for f in all_files
+                        if 'network' not in f]
+
+    # Schedule e mapping devono venire dalla stessa conversione. Il controllo
+    # costa due letture per istanza e trasforma una catena incrociata da errore
+    # silenzioso in un crash all'avvio.
+    _problems = RunConfig.validate_chain(run_paths, instance_ids)
+    if _problems:
+        parser.error("catena crew incoerente:\n  " + "\n  ".join(_problems))
+
+    all_results = []
+
+    for iid in instance_ids:
+        print(f"\n=== Instance: {iid} ===")
+        try:
+            t0 = time.time()
+            r = run_instance(iid, seed=args.seed,
+                             ignore_maintenance=args.no_maintenance,
+                             rescue_pass=args.rescue_pass)
+            elapsed = time.time() - t0
+            all_results.append({
+                'instance_id':           iid,
+                'total_trip':            len(r.solution),
+                'n_cancel':              count_canceled(r.solution),
+                'total_deadhead_length [m]': r.dh_stats['loco_dh_m'] + r.dh_stats['crew_dh_m'],
+                'computation_time [s]':      round(elapsed, 2),
+            })
+        except Exception as e:
+            all_results.append({'instance_id': iid, 'error': str(e)})
+            print(f"{iid}  ERROR: {e}")
+            continue
+
+        if args.export_solution:
+            # import qui e non in testa al modulo: senza il flag non serve
+            # tirarsi dentro VNS/scripts e validator
+            from VNS.scripts.VNSExport import export_solution_json
+            sol_path = os.path.join(args.export_solution,
+                                    f"{iid}_integrated_seed{args.seed}.json")
+            export_solution_json(r, {
+                'instance_id': iid,
+                'method':      'integrated',
+                'seed':        args.seed,
+                'no_maintenance': args.no_maintenance,
+                'objective':   r.dh_stats['loco_dh_m'] + r.dh_stats['crew_dh_m'],
+                'n_canceled':  len(r.canceled_tasks),
+                'loco_dh_m':   r.dh_stats['loco_dh_m'],
+                'crew_dh_m':   r.dh_stats['crew_dh_m'],
+                'setup_sec':   r.timings['setup_sec'],
+                'solve_sec':   r.timings['solve_sec'],
+                # Da quali directory viene questo risultato. Senza, una
+                # soluzione vecchia non e' distinguibile da una nuova.
+                **run_paths.as_run_info(),
+            }, sol_path)
+            print(f"[Solution] → {sol_path}")
+
+        # Gantt su richiesta e solo in single-instance mode: un HTML per run su
+        # istanza grande pesa svariati MB, e generarlo di default riempie
+        # IntegratedRescheduling/visualize senza che nessuno l'abbia chiesto.
+        if args.gantt and len(instance_ids) == 1:
+            from viz.LocoCrewViz import plot_loco_crew_gantt
+            metrics = {
+                'total_trips':          len(r.solution),
+                'cancellations':        count_canceled(r.solution),
+                'loco_dh_m':            r.dh_stats['loco_dh_m'],
+                'crew_dh_m':            r.dh_stats['crew_dh_m'],
+                'compute_time_sec':     elapsed,
+                'disruption_start_min': r.dh_stats['disruption_start_min'],
+                'disruption_end_min':   r.dh_stats['disruption_end_min'],
+            }
+            output_path = os.path.join('IntegratedRescheduling/visualize', f"{iid}_{ts}.html")
+            plot_loco_crew_gantt(
+                r.loco_duties,
+                title=f"Instance {iid}",
+                output_html=output_path,
+                metrics=metrics,
+                xaxis=args.xaxis,
+                disruption_start_min=r.dh_stats['disruption_start_min'],
+                canceled=r.canceled_tasks,
+                canceled_per_trip=args.canc_per_trip,
+            )
+        
+
+    export_to_csv(all_results, os.path.join('IntegratedRescheduling/results', f'results_{ts}.csv'))
+

@@ -597,6 +597,10 @@ public class QuadraticBreak2 extends PricingProblemSolver
 	        if (startStation == endStation) {
 	            return 0.0;
 	        }
+
+	        if (deadhead != null && Parameters.CREW_DEADHEAD_PENALTY > 0) {
+	            return deadhead.cost(startStation, endStation, Parameters.CREW_DEADHEAD_PENALTY);
+	        }
 	        
 	        // Recupera la mappa per la stazione di partenza (riga)
 	        Map<Integer, Double> row = stationDistances.get(startStation);

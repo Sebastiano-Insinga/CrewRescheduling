@@ -76,15 +76,19 @@ def iteration_row(instance_id, it, k, outcome, obj, incumbent_val, best_val,
 
 
 def export_solution_json(result, run_info: dict, output_path: str) -> None:
+    """Converte un SolveResult in Solution e lo salva."""
+    os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
+    to_solution(result, run_info).save(output_path)
+
+
+def to_solution(result, run_info: dict) -> Solution:
     """
-    Converte un SolveResult in Solution e lo salva.
+    Converte un SolveResult in Solution, senza scriverlo su file.
 
     Le assignment si costruiscono da `result.loco_duties`, l'unica struttura che
     porta insieme `rs_trip_id` e driver: in `existing_duties` il task arriva con
     un `id` progressivo e senza `rs_trip_id`.
     """
-    os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
-
     # i flag di manutenzione stanno in result.solution, per trip
     maint = {e['id_trip']: e for e in result.solution if e['locomotive'] != 'canceled'}
 
@@ -137,10 +141,10 @@ def export_solution_json(result, run_info: dict, output_path: str) -> None:
             for t, e in run_info['forced'].items()
         }
 
-    Solution(
+    return Solution(
         assignments= assignments,
-        breaks=      {d: s for d, s in result.duty_breaks.items() if s is not None},
+        breaks=      {d: tuple(s) for d, s in result.duty_breaks.items() if s is not None},
         canceled=    [ct['rs_trip_id'] for ct in result.canceled_tasks],
         run_info=    run_info,
         name=        run_info.get('instance_id'),
-    ).save(output_path)
+    )
